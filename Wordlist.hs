@@ -8,12 +8,7 @@ import qualified Data.Map.Strict as M
 --import qualified Data.Set.Strict as S
 
 type FreqMap = M.Map Char Int
-type WordMap = M.Map String Word
-
-data WordInfo = WordInfo
-  { letters      :: String -- ^Sorted list of unique letters
-  , allDifferent :: Bool   -- ^Are letters all different
-  } deriving (Show)
+type WordMap = M.Map String [String]
 
 -- |Load Kotus words from their XML file as a list of strings.
 loadKotusWords :: String -> IO [String]
@@ -21,14 +16,13 @@ loadKotusWords f = runX loader
   where loader = readDocument [] f >>>
                  deep (isElem >>> hasName "s" >>> getChildren >>> getText)
 
--- |Generate a map of words
-toWordMap :: [String] -> M.Map String WordInfo
-toWordMap list = M.fromList $ map (\word -> (word, toWordInfo word)) list
+-- |Generate a reverse map of words
+toWordMap :: [String] -> WordMap
+toWordMap words = project toDistinct words
 
--- |Get information about the word.
-toWordInfo :: String -> WordInfo
-toWordInfo word = WordInfo (map head uniq) (length word == length uniq)
-  where uniq = group $ sort word
+-- |Convert word to sorted distinct letter sequence
+toDistinct :: String -> String
+toDistinct = map head . group . sort
 
 -- |Has specific length
 hasLength :: Int -> String -> Bool
@@ -53,3 +47,15 @@ toFreqList = sortWith (negate . snd) . M.toList
 -- each letter.
 points :: FreqMap -> String -> Int
 points m xs = sum $ map (m M.!) xs
+
+-- |Insert the values into a map, using projection function as a
+-- key. The function doesn't need to be injection. The returned map
+-- key is the value of the projection function and the value is a list
+-- of values having that projection.
+project :: (Foldable t, Ord k) => (a -> k) -> t a -> M.Map k [a]
+project f xs = foldl inserter M.empty xs
+  where
+    -- Function which inserts values to the map
+    inserter m x = M.alter (alternator x) (f x) m
+    -- Adds item to the list if any, otherwise create singleton list
+    alternator x = Just . maybe [x] (x:)

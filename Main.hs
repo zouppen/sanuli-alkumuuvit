@@ -11,8 +11,8 @@ main = do
   let wordsToFind = 3
   [wordLenStr, wordFile] <- getArgs
   let wordLen = read wordLenStr
-  putStrLn $ "Word length is " ++ show (wordLen :: Int) ++ "."
-  
+  putStrLn $ "Word length is " ++ show (wordLen :: Int)
+
   putStr "Loading word list... "
   words <- loadKotusWords wordFile
   putStrLn $ show (length words) ++ " words loaded"
@@ -20,7 +20,7 @@ main = do
   let sanuliWords = filter (liftM2 (&&) isSanuliWord (hasLength wordLen)) words
       freqList = toFreqList $ frequency $ concat sanuliWords
       ourLetters = map fst $ take (wordsToFind*wordLen) freqList
-  
+
   putStrLn $
     "Keeping only Sanuli words... " ++ show (length sanuliWords) ++
     " words left"
