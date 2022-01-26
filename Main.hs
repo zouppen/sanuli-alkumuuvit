@@ -11,10 +11,11 @@ import qualified Data.Set as S
 import Wordlist
 
 main = do
-  let wordsToFind = 3
-  [wordLenStr, wordFile] <- getArgs
+  [wordLenStr, wordsToFindStr, wordFile] <- getArgs
   let wordLen = read wordLenStr
-  putStrLn $ "Word length is " ++ show (wordLen :: Int)
+  let wordsToFind = read wordsToFindStr
+  putStrLn $ "Word length is " ++ show wordLen
+  putStrLn $ "Word group size is " ++ show wordsToFind
 
   putStr "Loading word list... "
   words <- loadKotusWords wordFile
@@ -26,6 +27,7 @@ main = do
       ourLetters = S.fromList $ map fst keepThese
       sanuliWordMap = toWordMap sanuliWords
       ourWordMap = M.filterWithKey (\k _ -> filterPopular wordLen ourLetters k) sanuliWordMap
+      solution = permutateWords wordsToFind $ M.toList ourWordMap
 
   putStrLn $
     "Keeping only Sanuli words... " ++ show (length sanuliWords) ++
@@ -37,7 +39,7 @@ main = do
   putStrLn $ "Distinct sequences... " ++ show (M.size sanuliWordMap)
   putStrLn $ "Relevant sequences... " ++ show (M.size ourWordMap)
   
-  print ourWordMap
+  print solution
 
 freqShow :: [(Char, Int)] -> String
 freqShow list = unlines $ map line list
@@ -53,14 +55,13 @@ filterPopular wantedLen set s =
 permutateWords :: Int -> [(String, a)] -> [[(String, a)]]
 permutateWords n xs = filter permutationIsFine $ replicateM n xs
 
--- Return True if the given permutation is OK (no overlapping chars)
+-- Return True if the given permutation is OK (no overlapping
+-- chars). Sort order makes sure the group is processed only once.
 permutationIsFine :: [(String, a)] -> Bool
-permutationIsFine xs = isJust $ foldM meld "" $ map fst xs
-
--- |Variation of meld for recursive application (foldl)
-meldF :: Ord a => Maybe [a] -> [a] -> Maybe [a]
-meldF Nothing = const Nothing
-meldF (Just a) = meld a
+permutationIsFine xs = foldator ascending && foldator meld
+  where wordSeq = map fst xs
+        foldator f = isJust $ foldM f "" wordSeq
+        ascending a b = if a <= b then pure b else empty
 
 -- |Meld two ascending lists, returning Nothing if they have common
 -- items, and the new item wrapped in Just otherwise.
