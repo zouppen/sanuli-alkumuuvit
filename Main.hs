@@ -1,6 +1,8 @@
 module Main where
 
-import Control.Monad (liftM2)
+import Control.Applicative (Alternative, liftA, empty)
+import Control.Monad (foldM, liftM2, replicateM)
+import Data.Maybe (isJust)
 import GHC.IO (evaluate)
 import GHC.Exts (sortWith)
 import System.Environment (getArgs)
@@ -34,14 +36,42 @@ main = do
   putStr $ freqShow dropThese
   putStrLn $ "Distinct sequences... " ++ show (M.size sanuliWordMap)
   putStrLn $ "Relevant sequences... " ++ show (M.size ourWordMap)
+  
+  print ourWordMap
 
 freqShow :: [(Char, Int)] -> String
 freqShow list = unlines $ map line list
   where line (char, count) = "    " ++ [char] ++ ": " ++ show count
 
+-- |Return true if the string length has given length and all the
+-- letters are in the given set.
 filterPopular :: Int -> S.Set Char -> String -> Bool
-filterPopular wordLen ourLetters distinct =
-  length distinct == wordLen && all (`S.member` ourLetters) distinct
+filterPopular wantedLen set s =
+  length s == wantedLen && all (`S.member` set) s
+
+-- |Get permutations of given length which are fine
+permutateWords :: Int -> [(String, a)] -> [[(String, a)]]
+permutateWords n xs = filter permutationIsFine $ replicateM n xs
+
+-- Return True if the given permutation is OK (no overlapping chars)
+permutationIsFine :: [(String, a)] -> Bool
+permutationIsFine xs = isJust $ foldM meld "" $ map fst xs
+
+-- |Variation of meld for recursive application (foldl)
+meldF :: Ord a => Maybe [a] -> [a] -> Maybe [a]
+meldF Nothing = const Nothing
+meldF (Just a) = meld a
+
+-- |Meld two ascending lists, returning Nothing if they have common
+-- items, and the new item wrapped in Just otherwise.
+meld :: (Ord a, Alternative f) => [a] -> [a] -> f [a]
+meld a [] = pure a
+meld [] b = pure b
+meld (a:as) (b:bs) = case compare a b of
+  LT -> put a $ meld as (b:bs)
+  GT -> put b $ meld (a:as) bs
+  EQ -> empty
+  where put x = liftA (x:)
 
 {-
 -- |Just report what we're doing.
