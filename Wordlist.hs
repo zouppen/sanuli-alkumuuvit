@@ -34,7 +34,8 @@ toWordInfo word = WordInfo (map head uniq) (length word == length uniq)
 hasLength :: Int -> String -> Bool
 hasLength n xs = length xs == n
 
--- |Is Sanuli word (containing only a-z and åäö.
+-- |Is Sanuli word (containing only a-z and åäö. Drops also words with
+-- capital letters since those are abbreviations or names.
 isSanuliWord :: String -> Bool
 isSanuliWord x = all isSanuliChar x
   where isSanuliChar x = isAsciiLower x || x `elem` "åäö"
@@ -43,6 +44,10 @@ isSanuliWord x = all isSanuliChar x
 frequency :: String -> FreqMap
 frequency words = M.fromListWith (+) $ map toFreq words
   where toFreq a = (a,1)
+
+-- |Letter frequencies in descending order.
+toFreqList :: FreqMap -> [(Char, Int)]
+toFreqList = sortWith (negate . snd) . M.toList
 
 -- |Calculates frequency point for the word. Just adds frequencies of
 -- each letter.
