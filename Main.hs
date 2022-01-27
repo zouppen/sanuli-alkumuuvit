@@ -53,15 +53,12 @@ filterPopular wantedLen set s =
 
 -- |Get permutations of given length which are fine
 permutateWords :: Int -> [(String, a)] -> [[(String, a)]]
-permutateWords n xs = filter permutationIsFine $ replicateM n xs
+permutateWords n xs = filter permutationIsFine $ kpn n xs
 
--- Return True if the given permutation is OK (no overlapping
+-- |Return True if the given permutation is OK (no overlapping
 -- chars). Sort order makes sure the group is processed only once.
 permutationIsFine :: [(String, a)] -> Bool
-permutationIsFine xs = foldator ascending && foldator meld
-  where wordSeq = map fst xs
-        foldator f = isJust $ foldM f "" wordSeq
-        ascending a b = if a <= b then pure b else empty
+permutationIsFine xs = isJust $ foldM meld "" $ map fst xs
 
 -- |Meld two ascending lists, returning Nothing if they have common
 -- items, and the new item wrapped in Just otherwise.
@@ -74,12 +71,10 @@ meld (a:as) (b:bs) = case compare a b of
   EQ -> empty
   where put x = liftA (x:)
 
-{-
--- |Just report what we're doing.
-say :: String -> IO a -> IO a
-say msg act = do
-  putStr $ msg ++ "... "
-  a <- act
-  putStrLn "OK"
-  return a
--}
+-- |Produces all k-permutations of n. Don't ask, don't tell is the
+-- documentation of what happens here.
+kpn :: Int -> [a] -> [[a]]
+kpn 0 _ = [[]]
+kpn n [] = []
+kpn n (a:xs) = [ a:b | b <- kpn (n-1) xs ] ++ kpn n xs
+
