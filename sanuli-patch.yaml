@@ -1,0 +1,16 @@
+# Sanuli wordlist differences to Kotus sanalista v1. This list
+# probably has only a fraction of the differences. Please submit a
+# patch if you find more!
+
+add:
+  # Words which are not part of the list but are added to Sanuli
+
+drop:
+  # Words which are part of the list but are missing from Sanuli
+  - käsin
+  - input
+  - muren
+  - särmi
+  - mosel
+  - kynte
+  - ravet

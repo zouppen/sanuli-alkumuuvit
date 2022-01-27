@@ -1,3 +1,4 @@
+{-# LANGUAGE RecordWildCards #-}
 module Main where
 
 import Control.Applicative (Alternative, liftA, empty)
@@ -10,9 +11,10 @@ import System.Environment (getArgs)
 import qualified Data.Map.Strict as M
 import qualified Data.Set as S
 import Wordlist
+import WordPatch
 
 main = do
-  [wordLenStr, wordsToFindStr, wordFile] <- getArgs
+  [wordLenStr, wordsToFindStr, wordFile, sanuliPatch] <- getArgs
   let wordLen = read wordLenStr
   let wordsToFind = read wordsToFindStr
   putStrLn $ "Word length is " ++ show wordLen
@@ -22,8 +24,12 @@ main = do
   words <- loadKotusWords wordFile
   putStrLn $ show (length words) ++ " words loaded"
 
+  putStr "Loading Sanuli patch... "
+  WordPatch{..} <- readWordPatch sanuliPatch
+  putStrLn $ show (length addWords) ++ " additions, " ++ show (length dropWords) ++ " removals"
+
   let uniqueWords = S.fromList words
-      patchedWords = uniqueWords `S.difference` droplist `S.union` addlist
+      patchedWords = uniqueWords `S.difference` dropWords `S.union` addWords
       sanuliWords = S.filter (liftM2 (&&) isSanuliWord (hasLength wordLen)) patchedWords
       freqList = toFreqList $ frequency $ concat $ S.toList sanuliWords
       (keepThese, dropThese) = splitAt (wordsToFind*wordLen) freqList
@@ -99,22 +105,3 @@ cartesianProduct :: [[a]] -> [[a]]
 cartesianProduct [] = [[]]
 cartesianProduct (x:xs) = [ a:b | a <- x, b <- cartesianProduct xs ]
 
--- |Words which are not part of the list but are added to
--- Sanuli. Probably we've got only fraction of the differences.
-addlist :: S.Set String
-addlist = S.fromList
-  [
-  ]
-
--- |Words which are part of the list but seems to be missing from
--- Sanuli. Probably we've got only fraction of the differences.
-droplist :: S.Set String
-droplist = S.fromList
-  [ "käsin"
-  , "input"
-  , "muren"
-  , "särmi"
-  , "mosel"
-  , "kynte"
-  , "ravet"
-  ]
