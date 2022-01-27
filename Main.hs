@@ -31,7 +31,7 @@ main = do
       sanuliWordMap = toWordMap sanuliWords
       ourWordMap = M.filterWithKey (\k _ -> filterPopular wordLen ourLetters k) sanuliWordMap
       solution = permutateWords wordsToFind $ M.toList ourWordMap
-      finalSolution = concatMap (rotate . map (S.toList.snd)) solution
+      finalSolution = concatMap (cartesianProduct . map (S.toList.snd)) solution
 
   putStrLn $ "Taking only unique words... " ++ show (S.size uniqueWords) ++ " words left"
   putStrLn $ "Applying Sanuli word patch..." ++ show (S.size patchedWords) ++ " words left"
@@ -86,12 +86,12 @@ kpn 0 _ = [[]]
 kpn n [] = []
 kpn n (a:xs) = [ a:b | b <- kpn (n-1) xs ] ++ kpn n xs
 
--- |"Rotates" list, e.g. `[["A1","A2"],["B1","B2","B3"]]` ->
+-- |Calculates n-dimensional cartesian product of the input list
+-- e.g. `[["A1","A2"],["B1","B2","B3"]]` ->
 -- `[["A1","B1"],["A1","B2"],["A1","B3"],["A2","B1"],["A2","B2"],["A2","B3"]]`
-rotate :: [[a]] -> [[a]]
-rotate [] = [[]]
-rotate (x:xs) = [ a:b | a <- x, b <- rotate xs ]
-
+cartesianProduct :: [[a]] -> [[a]]
+cartesianProduct [] = [[]]
+cartesianProduct (x:xs) = [ a:b | a <- x, b <- cartesianProduct xs ]
 
 -- |Words which are not part of the list but are added to
 -- Sanuli. Probably we've got only fraction of the differences.
