@@ -22,16 +22,15 @@ main = do
   putStrLn $ "Word length is " ++ show wordLen
   putStrLn $ "Word group size is " ++ show wordsToFind
 
-  putStr "Loading word list... "
+  putStr "Loading Kotus word list... "
   words <- readKotusWordFile wordFile
-  putStrLn $ show (length words) ++ " words loaded"
+  putStrLn $ show (length words) ++ " unique words loaded"
 
   putStr "Loading Sanuli patch... "
   WordPatch{..} <- readWordPatch sanuliPatch
   putStrLn $ show (length addWords) ++ " additions, " ++ show (length dropWords) ++ " removals"
 
-  let uniqueWords = S.fromList words
-      patchedWords = uniqueWords `S.difference` dropWords `S.union` addWords
+  let patchedWords = words `S.difference` dropWords `S.union` addWords
       sanuliFilter = liftM2 (&&) isSanuliWord (hasLength wordLen)
       sanuliWords = S.filter sanuliFilter patchedWords
       freqList = toFreqList $ frequency $ concat $ S.toList sanuliWords
@@ -42,7 +41,6 @@ main = do
       solution = permutateWords wordsToFind $ M.toList ourWordMap
       finalSolution = concatMap (cartesianProduct . map (S.toList.snd)) solution
 
-  putStrLn $ "Taking only unique words... " ++ show (length uniqueWords) ++ " words left"
   putStrLn $ "Applying Sanuli word patch..." ++ show (length patchedWords) ++ " words left"
   putStrLn $ "Keeping only words with given length and Sanuli characters... " ++ show (length sanuliWords) ++ " words left"
   putStrLn $ "Calculating frequency map of " ++ show wordLen ++ "-length words..."
