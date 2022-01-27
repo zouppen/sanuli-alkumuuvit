@@ -1,7 +1,6 @@
 module Wordlist where
 
 import GHC.Exts (sortWith)
-import Text.XML.HXT.Core
 import Data.List (sort, group)
 import qualified Data.Map.Strict as M
 import qualified Data.Set as S
@@ -10,12 +9,6 @@ type Letters  = String                 -- ^Set of letters the word consists
 type Anagrams = S.Set String           -- ^Set of words which are anagrams
 type FreqMap  = M.Map Char Int         -- ^Character frequency map
 type WordMap  = M.Map Letters Anagrams -- ^Map of all words (grouped by anagrams)
-
--- |Load Kotus words from their XML file as a list of strings.
-loadKotusWords :: String -> IO [String]
-loadKotusWords f = runX loader
-  where loader = readDocument [] f >>>
-                 deep (isElem >>> hasName "s" >>> getChildren >>> getText)
 
 -- |Group words into Map of anagrams
 toAnagramMap :: Foldable t => t String -> WordMap

@@ -13,6 +13,7 @@ import qualified Data.Set as S
 import Wordlist
 import WordPatch
 import Sanuli
+import Kotus (readKotusWordFile)
 
 main = do
   [wordLenStr, wordsToFindStr, wordFile, sanuliPatch] <- getArgs
@@ -22,7 +23,7 @@ main = do
   putStrLn $ "Word group size is " ++ show wordsToFind
 
   putStr "Loading word list... "
-  words <- loadKotusWords wordFile
+  words <- readKotusWordFile wordFile
   putStrLn $ show (length words) ++ " words loaded"
 
   putStr "Loading Sanuli patch... "
