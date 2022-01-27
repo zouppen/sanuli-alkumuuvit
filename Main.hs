@@ -37,21 +37,27 @@ main = do
   putStrLn $ "Applying Sanuli word patch..." ++ show (length patchedWords) ++ " words left"
   putStrLn $ "Keeping only words with given length and Sanuli characters... " ++ show (length sanuliWords) ++ " words left"
   putStrLn $ "Calculating frequency map of " ++ show wordLen ++ "-length words..."
-  putStr $ freqShow keepThese
+  putList formatFreq keepThese
   putStrLn "    -- demotion zone --"
-  putStr $ freqShow dropThese
-  putStrLn $ "Distinct sequences... " ++ show (length sanuliWordMap)
-  putStrLn $ "Relevant sequences... " ++ show (length ourWordMap)
-  putStrLn ""
+  putList formatFreq dropThese
+  putStrLn $ "Number of anagram groups... " ++ show (length sanuliWordMap)
+  putStrLn $ "Number of anagram groups having " ++ show (length ourLetters) ++ " most frequent letters... " ++ show (length ourWordMap)
+  putStrLn "Calculating unique word set..."
 
-  mapM_ (putStrLn . formatSolution) finalSolution
+  putList formatSolution finalSolution
 
+-- |Prints elements in the list line by line, using the given
+-- projection function.
+putList :: Foldable t => (a -> String) -> t a -> IO ()
+putList f = mapM_ (putStrLn . f)
+
+-- |Formats a solution user-friendly
 formatSolution :: [String] -> String
 formatSolution xs = "    " ++ intercalate " " xs
 
-freqShow :: [(Char, Int)] -> String
-freqShow list = unlines $ map line list
-  where line (char, count) = "    " ++ [char] ++ ": " ++ show count
+-- |Formats character frequency user-friendly
+formatFreq :: (Char, Int) -> String
+formatFreq (char, count) = "    " ++ [char] ++ ": " ++ show count
 
 -- |Return true if the string length has given length and all the
 -- letters are in the given set.
