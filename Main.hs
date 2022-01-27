@@ -10,6 +10,7 @@ import GHC.Exts (sortWith)
 import System.Environment (getArgs)
 import qualified Data.Map.Strict as M
 import qualified Data.Set as S
+import Text.Printf
 import Wordlist
 import WordPatch
 import Sanuli
@@ -19,20 +20,20 @@ main = do
   [wordLenStr, wordsToFindStr, wordFile, sanuliPatch] <- getArgs
   let wordLen = read wordLenStr
   let wordsToFind = read wordsToFindStr
-  putStrLn $ "Word length is " ++ show wordLen
-  putStrLn $ "Word group size is " ++ show wordsToFind
+  printf "Word length is %d\n" wordLen
+  printf "Word group size is %d\n" wordsToFind
 
-  putStr "Loading Kotus word list... "
+  printf "Loading Kotus word list... "
   words <- readKotusWordFile wordFile
-  putStrLn $ show (length words) ++ " unique words loaded"
+  printf "%d unique words loaded\n" (length words)
 
-  putStr "Loading Sanuli patch... "
+  printf "Loading Sanuli patch... "
   WordPatch{..} <- readWordPatch sanuliPatch
-  putStrLn $ show (length addWords) ++ " additions, " ++ show (length dropWords) ++ " removals"
+  printf "%d additions, %d removals\n" (length addWords) (length dropWords)
 
   let patchedWords = words `S.difference` dropWords `S.union` addWords
-      sanuliFilter = liftM2 (&&) isSanuliWord (hasLength wordLen)
-      sanuliWords = S.filter sanuliFilter patchedWords
+      givenLengthWords = S.filter (hasLength wordLen) patchedWords
+      sanuliWords = S.filter isSanuliWord givenLengthWords
       freqList = toFreqList $ frequency $ concat $ S.toList sanuliWords
       (keepThese, dropThese) = splitAt (wordsToFind*wordLen) freqList
       ourLetters = S.fromList $ map fst keepThese
@@ -41,15 +42,17 @@ main = do
       solution = permutateWords wordsToFind $ M.toList ourWordMap
       finalSolution = concatMap (cartesianProduct . map (S.toList.snd)) solution
 
-  putStrLn $ "Applying Sanuli word patch..." ++ show (length patchedWords) ++ " words left"
-  putStrLn $ "Keeping only words with given length and Sanuli characters... " ++ show (length sanuliWords) ++ " words left"
-  putStrLn $ "Calculating frequency map of " ++ show wordLen ++ "-length words..."
+  printf "Applying Sanuli word patch... %d words left\n" (length patchedWords)
+  printf "Filtering %d-length words... %d words left\n" wordLen (length givenLengthWords)
+  printf "Filtering words with Sanuli characters... %d words left\n" (length sanuliWords)
+  printf "Calculating frequency map of %d-length words...\n" wordLen 
+  printf "Promoted letters:\n"
   putList formatFreq keepThese
-  putStrLn "    -- demotion zone --"
+  printf "Demoted letters:\n"
   putList formatFreq dropThese
-  putStrLn $ "Number of anagram groups... " ++ show (length sanuliWordMap)
-  putStrLn $ "Number of anagram groups having " ++ show (length ourLetters) ++ " most frequent letters... " ++ show (length ourWordMap)
-  putStrLn "Calculating unique word set..."
+  printf "Number of anagram groups... %d\n" (length sanuliWordMap)
+  printf "Number of anagram groups of promoted letters... %d\n" (length ourWordMap)
+  printf "Calculating unique word set...\n"
 
   putList formatSolution finalSolution
 
