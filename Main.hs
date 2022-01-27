@@ -55,7 +55,7 @@ freqShow list = unlines $ map line list
 
 -- |Return true if the string length has given length and all the
 -- letters are in the given set.
-filterPopular :: Foldable t => Int -> S.Set Char -> t Char -> Bool
+filterPopular :: Foldable t => Int -> LetterSet -> t Char -> Bool
 filterPopular wantedLen set s =
   length s == wantedLen && all (`S.member` set) s
 
