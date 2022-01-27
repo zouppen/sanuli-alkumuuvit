@@ -28,10 +28,10 @@ main = do
       freqList = toFreqList $ frequency $ concat $ S.toList sanuliWords
       (keepThese, dropThese) = splitAt (wordsToFind*wordLen) freqList
       ourLetters = S.fromList $ map fst keepThese
-      sanuliWordMap = toWordMap $ S.toList sanuliWords
+      sanuliWordMap = toWordMap sanuliWords
       ourWordMap = M.filterWithKey (\k _ -> filterPopular wordLen ourLetters k) sanuliWordMap
       solution = permutateWords wordsToFind $ M.toList ourWordMap
-      finalSolution = concatMap (rotate . map snd) solution
+      finalSolution = concatMap (rotate . map (S.toList.snd)) solution
 
   putStrLn $ "Taking only unique words... " ++ show (S.size uniqueWords) ++ " words left"
   putStrLn $ "Applying Sanuli word patch..." ++ show (S.size patchedWords) ++ " words left"

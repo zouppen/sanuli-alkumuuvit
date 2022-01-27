@@ -5,9 +5,10 @@ import Text.XML.HXT.Core
 import Data.Char (isAsciiLower)
 import Data.List (sort, group)
 import qualified Data.Map.Strict as M
+import qualified Data.Set as S
 
 type FreqMap = M.Map Char Int
-type WordMap = M.Map String [String]
+type WordMap = M.Map String (S.Set String)
 
 -- |Load Kotus words from their XML file as a list of strings.
 loadKotusWords :: String -> IO [String]
@@ -15,8 +16,8 @@ loadKotusWords f = runX loader
   where loader = readDocument [] f >>>
                  deep (isElem >>> hasName "s" >>> getChildren >>> getText)
 
--- |Generate a reverse map of words
-toWordMap :: [String] -> WordMap
+-- |Group words into Map of anagrams
+toWordMap :: Foldable t => t String -> M.Map String (S.Set String)
 toWordMap words = project toDistinct words
 
 -- |Convert word to sorted distinct letter sequence
@@ -49,12 +50,12 @@ points m xs = sum $ map (m M.!) xs
 
 -- |Insert the values into a map, using projection function as a
 -- key. The function doesn't need to be injection. The returned map
--- key is the value of the projection function and the value is a list
+-- key is the value of the projection function and the value is a set
 -- of values having that projection.
-project :: (Foldable t, Ord k) => (a -> k) -> t a -> M.Map k [a]
+project :: (Foldable t, Ord k, Ord a) => (a -> k) -> t a -> M.Map k (S.Set a)
 project f xs = foldl inserter M.empty xs
   where
     -- Function which inserts values to the map
     inserter m x = M.alter (alternator x) (f x) m
     -- Adds item to the list if any, otherwise create singleton list
-    alternator x = Just . maybe [x] (x:)
+    alternator x = Just . maybe (S.singleton x) (S.insert x)
