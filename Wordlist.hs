@@ -17,12 +17,12 @@ loadKotusWords f = runX loader
                  deep (isElem >>> hasName "s" >>> getChildren >>> getText)
 
 -- |Group words into Map of anagrams
-toWordMap :: Foldable t => t String -> M.Map String (S.Set String)
-toWordMap words = project toDistinct words
+toWordMap :: Foldable t => t String -> WordMap
+toWordMap words = project toLetterSet words
 
 -- |Convert word to sorted distinct letter sequence
-toDistinct :: String -> String
-toDistinct = map head . group . sort
+toLetterSet :: String -> String
+toLetterSet = map head . group . sort
 
 -- |Has specific length
 hasLength :: Int -> String -> Bool

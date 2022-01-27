@@ -33,15 +33,15 @@ main = do
       solution = permutateWords wordsToFind $ M.toList ourWordMap
       finalSolution = concatMap (cartesianProduct . map (S.toList.snd)) solution
 
-  putStrLn $ "Taking only unique words... " ++ show (S.size uniqueWords) ++ " words left"
-  putStrLn $ "Applying Sanuli word patch..." ++ show (S.size patchedWords) ++ " words left"
-  putStrLn $ "Keeping only words with given length and Sanuli characters... " ++ show (S.size sanuliWords) ++ " words left"
+  putStrLn $ "Taking only unique words... " ++ show (length uniqueWords) ++ " words left"
+  putStrLn $ "Applying Sanuli word patch..." ++ show (length patchedWords) ++ " words left"
+  putStrLn $ "Keeping only words with given length and Sanuli characters... " ++ show (length sanuliWords) ++ " words left"
   putStrLn $ "Calculating frequency map of " ++ show wordLen ++ "-length words..."
   putStr $ freqShow keepThese
   putStrLn "    -- demotion zone --"
   putStr $ freqShow dropThese
-  putStrLn $ "Distinct sequences... " ++ show (M.size sanuliWordMap)
-  putStrLn $ "Relevant sequences... " ++ show (M.size ourWordMap)
+  putStrLn $ "Distinct sequences... " ++ show (length sanuliWordMap)
+  putStrLn $ "Relevant sequences... " ++ show (length ourWordMap)
   putStrLn ""
 
   mapM_ (putStrLn . formatSolution) finalSolution
@@ -55,7 +55,7 @@ freqShow list = unlines $ map line list
 
 -- |Return true if the string length has given length and all the
 -- letters are in the given set.
-filterPopular :: Int -> S.Set Char -> String -> Bool
+filterPopular :: Foldable t => Int -> S.Set Char -> t Char -> Bool
 filterPopular wantedLen set s =
   length s == wantedLen && all (`S.member` set) s
 
