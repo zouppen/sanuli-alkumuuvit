@@ -7,10 +7,10 @@ import Data.List (sort, group)
 import qualified Data.Map.Strict as M
 import qualified Data.Set as S
 
-type LetterSet = String
-type AnagramSet = S.Set String
+type DistinctLetters = String
+type Anagrams = S.Set String
 type FreqMap = M.Map Char Int
-type WordMap = M.Map LetterSet AnagramSet
+type WordMap = M.Map DistinctLetters Anagrams
 
 -- |Load Kotus words from their XML file as a list of strings.
 loadKotusWords :: String -> IO [String]
@@ -23,7 +23,7 @@ toWordMap :: Foldable t => t String -> WordMap
 toWordMap words = project toLetterSet words
 
 -- |Convert word to sorted distinct letter sequence
-toLetterSet :: String -> LetterSet
+toLetterSet :: String -> DistinctLetters
 toLetterSet = map head . group . sort
 
 -- |Has specific length
