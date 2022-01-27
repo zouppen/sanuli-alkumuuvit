@@ -2,7 +2,6 @@ module Wordlist where
 
 import GHC.Exts (sortWith)
 import Text.XML.HXT.Core
-import Data.Char (isAsciiLower)
 import Data.List (sort, group)
 import qualified Data.Map.Strict as M
 import qualified Data.Set as S
@@ -19,22 +18,16 @@ loadKotusWords f = runX loader
                  deep (isElem >>> hasName "s" >>> getChildren >>> getText)
 
 -- |Group words into Map of anagrams
-toWordMap :: Foldable t => t String -> WordMap
-toWordMap words = project toLetterSet words
+toAnagramMap :: Foldable t => t String -> WordMap
+toAnagramMap words = project toLetters words
 
 -- |Convert word to sorted distinct letter sequence
-toLetterSet :: String -> Letters
-toLetterSet = S.toList . S.fromList
+toLetters :: String -> Letters
+toLetters = map head . group . sort
 
 -- |Has specific length
 hasLength :: Int -> String -> Bool
 hasLength n xs = length xs == n
-
--- |Is Sanuli word (containing only a-z and åäö. Drops also words with
--- capital letters since those are abbreviations or names.
-isSanuliWord :: String -> Bool
-isSanuliWord x = all isSanuliChar x
-  where isSanuliChar x = isAsciiLower x || x `elem` "åäö"
 
 -- |Letter frequency of words.
 frequency :: String -> FreqMap

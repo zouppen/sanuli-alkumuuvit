@@ -12,6 +12,7 @@ import qualified Data.Map.Strict as M
 import qualified Data.Set as S
 import Wordlist
 import WordPatch
+import Sanuli
 
 main = do
   [wordLenStr, wordsToFindStr, wordFile, sanuliPatch] <- getArgs
@@ -30,11 +31,12 @@ main = do
 
   let uniqueWords = S.fromList words
       patchedWords = uniqueWords `S.difference` dropWords `S.union` addWords
-      sanuliWords = S.filter (liftM2 (&&) isSanuliWord (hasLength wordLen)) patchedWords
+      sanuliFilter = liftM2 (&&) isSanuliWord (hasLength wordLen)
+      sanuliWords = S.filter sanuliFilter patchedWords
       freqList = toFreqList $ frequency $ concat $ S.toList sanuliWords
       (keepThese, dropThese) = splitAt (wordsToFind*wordLen) freqList
       ourLetters = S.fromList $ map fst keepThese
-      sanuliWordMap = toWordMap sanuliWords
+      sanuliWordMap = toAnagramMap sanuliWords
       ourWordMap = M.filterWithKey (\k _ -> filterPopular wordLen ourLetters k) sanuliWordMap
       solution = permutateWords wordsToFind $ M.toList ourWordMap
       finalSolution = concatMap (cartesianProduct . map (S.toList.snd)) solution
