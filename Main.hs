@@ -2,6 +2,7 @@ module Main where
 
 import Control.Applicative (Alternative, liftA, empty)
 import Control.Monad (foldM, liftM2, replicateM)
+import Data.List (intercalate)
 import Data.Maybe (isJust)
 import GHC.IO (evaluate)
 import GHC.Exts (sortWith)
@@ -21,25 +22,30 @@ main = do
   words <- loadKotusWords wordFile
   putStrLn $ show (length words) ++ " words loaded"
 
-  let sanuliWords = filter (liftM2 (&&) isSanuliWord (hasLength wordLen)) words
+  let uniqueWords = S.toList $ S.fromList words
+      sanuliWords = filter (liftM2 (&&) isSanuliWord (hasLength wordLen)) uniqueWords
       freqList = toFreqList $ frequency $ concat sanuliWords
       (keepThese, dropThese) = splitAt (wordsToFind*wordLen) freqList
       ourLetters = S.fromList $ map fst keepThese
       sanuliWordMap = toWordMap sanuliWords
       ourWordMap = M.filterWithKey (\k _ -> filterPopular wordLen ourLetters k) sanuliWordMap
       solution = permutateWords wordsToFind $ M.toList ourWordMap
+      finalSolution = concatMap (rotate . map snd) solution
 
-  putStrLn $
-    "Keeping only Sanuli words... " ++ show (length sanuliWords) ++
-    " words left"
+  putStrLn $ "Taking only unique words..." ++ show (length uniqueWords) ++ " words left"
+  putStrLn $ "Keeping only Sanuli words... " ++ show (length sanuliWords) ++ " words left"
   putStrLn $ "Calculating frequency map of " ++ show wordLen ++ "-length words..."
   putStr $ freqShow keepThese
   putStrLn "    -- demotion zone --"
   putStr $ freqShow dropThese
   putStrLn $ "Distinct sequences... " ++ show (M.size sanuliWordMap)
   putStrLn $ "Relevant sequences... " ++ show (M.size ourWordMap)
-  
-  print solution
+  putStrLn ""
+
+  mapM_ (putStrLn . formatSolution) finalSolution
+
+formatSolution :: [String] -> String
+formatSolution xs = "    " ++ intercalate " " xs
 
 freqShow :: [(Char, Int)] -> String
 freqShow list = unlines $ map line list
@@ -78,3 +84,8 @@ kpn 0 _ = [[]]
 kpn n [] = []
 kpn n (a:xs) = [ a:b | b <- kpn (n-1) xs ] ++ kpn n xs
 
+-- |"Rotates" list, e.g. `[["A1","A2"],["B1","B2","B3"]]` ->
+-- `[["A1","B1"],["A1","B2"],["A1","B3"],["A2","B1"],["A2","B2"],["A2","B3"]]`
+rotate :: [[a]] -> [[a]]
+rotate [] = [[]]
+rotate (x:xs) = [ a:b | a <- x, b <- rotate xs ]
