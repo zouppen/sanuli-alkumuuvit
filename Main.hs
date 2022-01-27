@@ -22,8 +22,9 @@ main = do
   words <- loadKotusWords wordFile
   putStrLn $ show (length words) ++ " words loaded"
 
-  let uniqueWords = S.toList $ S.fromList words
-      sanuliWords = filter (liftM2 (&&) isSanuliWord (hasLength wordLen)) uniqueWords
+  let wordSet = S.fromList words
+      patchedWordSet = wordSet `S.difference` droplist `S.union` addlist
+      sanuliWords = filter (liftM2 (&&) isSanuliWord (hasLength wordLen)) $ S.toList patchedWordSet
       freqList = toFreqList $ frequency $ concat sanuliWords
       (keepThese, dropThese) = splitAt (wordsToFind*wordLen) freqList
       ourLetters = S.fromList $ map fst keepThese
@@ -32,8 +33,9 @@ main = do
       solution = permutateWords wordsToFind $ M.toList ourWordMap
       finalSolution = concatMap (rotate . map snd) solution
 
-  putStrLn $ "Taking only unique words..." ++ show (length uniqueWords) ++ " words left"
-  putStrLn $ "Keeping only Sanuli words... " ++ show (length sanuliWords) ++ " words left"
+  putStrLn $ "Taking only unique words... " ++ show (S.size wordSet) ++ " words left"
+  putStrLn $ "Applying Sanuli word patch..." ++ show (S.size patchedWordSet) ++ " words left"
+  putStrLn $ "Keeping only words with given length and Sanuli characters... " ++ show (length sanuliWords) ++ " words left"
   putStrLn $ "Calculating frequency map of " ++ show wordLen ++ "-length words..."
   putStr $ freqShow keepThese
   putStrLn "    -- demotion zone --"
@@ -89,3 +91,24 @@ kpn n (a:xs) = [ a:b | b <- kpn (n-1) xs ] ++ kpn n xs
 rotate :: [[a]] -> [[a]]
 rotate [] = [[]]
 rotate (x:xs) = [ a:b | a <- x, b <- rotate xs ]
+
+
+-- |Words which are not part of the list but are added to
+-- Sanuli. Probably we've got only fraction of the differences.
+addlist :: S.Set String
+addlist = S.fromList
+  [
+  ]
+
+-- |Words which are part of the list but seems to be missing from
+-- Sanuli. Probably we've got only fraction of the differences.
+droplist :: S.Set String
+droplist = S.fromList
+  [ "käsin"
+  , "input"
+  , "muren"
+  , "särmi"
+  , "mosel"
+  , "kynte"
+  , "ravet"
+  ]
