@@ -5,7 +5,6 @@ import Text.XML.HXT.Core
 import Data.Char (isAsciiLower)
 import Data.List (sort, group)
 import qualified Data.Map.Strict as M
---import qualified Data.Set.Strict as S
 
 type FreqMap = M.Map Char Int
 type WordMap = M.Map String [String]

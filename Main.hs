@@ -22,20 +22,20 @@ main = do
   words <- loadKotusWords wordFile
   putStrLn $ show (length words) ++ " words loaded"
 
-  let wordSet = S.fromList words
-      patchedWordSet = wordSet `S.difference` droplist `S.union` addlist
-      sanuliWords = filter (liftM2 (&&) isSanuliWord (hasLength wordLen)) $ S.toList patchedWordSet
-      freqList = toFreqList $ frequency $ concat sanuliWords
+  let uniqueWords = S.fromList words
+      patchedWords = uniqueWords `S.difference` droplist `S.union` addlist
+      sanuliWords = S.filter (liftM2 (&&) isSanuliWord (hasLength wordLen)) patchedWords
+      freqList = toFreqList $ frequency $ concat $ S.toList sanuliWords
       (keepThese, dropThese) = splitAt (wordsToFind*wordLen) freqList
       ourLetters = S.fromList $ map fst keepThese
-      sanuliWordMap = toWordMap sanuliWords
+      sanuliWordMap = toWordMap $ S.toList sanuliWords
       ourWordMap = M.filterWithKey (\k _ -> filterPopular wordLen ourLetters k) sanuliWordMap
       solution = permutateWords wordsToFind $ M.toList ourWordMap
       finalSolution = concatMap (rotate . map snd) solution
 
-  putStrLn $ "Taking only unique words... " ++ show (S.size wordSet) ++ " words left"
-  putStrLn $ "Applying Sanuli word patch..." ++ show (S.size patchedWordSet) ++ " words left"
-  putStrLn $ "Keeping only words with given length and Sanuli characters... " ++ show (length sanuliWords) ++ " words left"
+  putStrLn $ "Taking only unique words... " ++ show (S.size uniqueWords) ++ " words left"
+  putStrLn $ "Applying Sanuli word patch..." ++ show (S.size patchedWords) ++ " words left"
+  putStrLn $ "Keeping only words with given length and Sanuli characters... " ++ show (S.size sanuliWords) ++ " words left"
   putStrLn $ "Calculating frequency map of " ++ show wordLen ++ "-length words..."
   putStr $ freqShow keepThese
   putStrLn "    -- demotion zone --"
