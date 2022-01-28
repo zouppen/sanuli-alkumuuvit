@@ -23,15 +23,16 @@ goodWord wantedLen set s =
 
 -- |Get permutations of given length which are fine
 permutateWords :: Int -> [(String, a)] -> [[(String, a)]]
-permutateWords n xs = filter permutationIsFine $ kpn n xs
+permutateWords n xs = filter f $ kpn n xs
+  where f = permutationIsFine . map fst
 
 -- |Return True if the given permutation is OK (no overlapping
 -- chars). Sort order makes sure the group is processed only once.
-permutationIsFine :: [(String, a)] -> Bool
-permutationIsFine xs = isJust $ foldM meld "" $ map fst xs
+permutationIsFine :: [String] -> Bool
+permutationIsFine = isJust . foldM meld ""
 
--- |Meld two ascending lists, returning Nothing if they have common
--- items, and the new item wrapped in Just otherwise.
+-- |Meld two ascending lists, returning empty if they have common
+-- items, and the new item (wrapped in pure) otherwise.
 meld :: (Ord a, Alternative f) => [a] -> [a] -> f [a]
 meld a [] = pure a
 meld [] b = pure b
