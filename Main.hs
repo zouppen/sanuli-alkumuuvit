@@ -49,7 +49,6 @@ main = do
   printf "Number of anagram groups... %d\n" (length sanuliWordMap)
   printf "Number of anagram groups of promoted letters... %d\n" (length ourWordMap)
   printf "Calculating unique word set...\n"
-
   putList formatSolution finalSolution
 
 -- |Prints elements in the list line by line, using the given
