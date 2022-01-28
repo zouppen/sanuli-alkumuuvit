@@ -51,7 +51,7 @@ Algoritmi löytyy tiedostosta [Main.hs](Main.hs).
 Jos jaksaisi niin voisi kirjoittaa Cabal-paketin tälle helpottamaan asennusta. Tässä pikaiset ohjeet Debianille ja Ubuntulle. Kloonaa tämä repo ja aja hakemistossa:
 
 ```sh
-curl https://kaino.kotus.fi/sanat/nykysuomi/kotus-sanalista-v1.tar.gz | tar -xzv
+curl -s https://kaino.kotus.fi/sanat/nykysuomi/kotus-sanalista-v1.tar.gz | tar -xzv
 sudo apt install ghc libghc-hxt-dev libghc-yaml-dev
 ghc --make -O2 Main.hs -o alkumuuvit
 ./alkumuuvit 5 2 kotus-sanalista_v1/kotus-sanalista_v1.xml sanuli-patch.yaml
