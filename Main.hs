@@ -5,6 +5,7 @@ import Data.List (intercalate)
 import qualified Data.Map.Strict as M
 import qualified Data.Set as S
 import System.Environment (getArgs)
+import System.IO
 import Text.Printf
 
 import Kotus (readKotusWordFile)
@@ -13,6 +14,7 @@ import WordUtils (toAnagramMap, fromAnagramList, frequency, toFreqList)
 import WordPatch (WordPatch(..), readWordPatch)
 
 main = do
+  hSetBuffering stdout NoBuffering
   [wordLenStr, wordsToFindStr, wordFile, sanuliPatch] <- getArgs
   let wordLen = read wordLenStr
   let wordsToFind = read wordsToFindStr
