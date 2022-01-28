@@ -42,9 +42,15 @@ Algoritmi löytyy tiedostosta [Main.hs](Main.hs).
 
 ### Viisikirjaimiset sanat
 
-* [Kaksi sanaa](https://zouppen.iki.fi/poista/sanuli5-2.txt)
-* [Kolme sanaa](https://zouppen.iki.fi/poista/sanuli5-3.txt)
-* [Neljä sanaa](https://zouppen.iki.fi/poista/sanuli5-4.txt)
+* [Kaksi sanaa](https://zouppen.iki.fi/projektit/sanuli/sanuli5-2.txt)
+* [Kolme sanaa](https://zouppen.iki.fi/projektit/sanuli/sanuli5-3.txt)
+* [Neljä sanaa](https://zouppen.iki.fi/projektit/sanuli/sanuli5-4.txt)
+
+### Kuusikirjaimiset sanat
+
+* [Kaksi sanaa](https://zouppen.iki.fi/projektit/sanuli/sanuli6-2.txt)
+* [Kolme sanaa](https://zouppen.iki.fi/projektit/sanuli/sanuli6-3.txt)
+* Neljä sanaa: ei löydy yhtään
 
 ## Asentaminen ja käyttö
 
