@@ -19,8 +19,8 @@ kolmella 15, kun viiden sanan peli on käytössä.
    Sanulin käyttämää listaa. Erot määritetty tiedostossa
    [sanuli-patch.yaml](sanuli-patch.yaml).
 3. Poimitaan tietyn mittaiset sanat, esim. viisi kirjainta pitkät.
-4. Suodatetaan pois sanalistasta merkit, joita sanulissa ei käytetä,
-   kuten *š*.
+4. Suodatetaan pois sanalistasta merkit, joita Sanulissa ei käytetä,
+   kuten *Š*.
 5. Lasketaan kirjainten frekvenssi näistä tietyn mittaisista sanoista.
 6. Poimitaan useimmin esiintyvät kirjaimet. Esim. kolmen sanan haussa
    poimitaan 15 yleisintä kirjainta.
