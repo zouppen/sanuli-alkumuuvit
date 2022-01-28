@@ -1,4 +1,5 @@
-module Wordlist where
+-- |Somewhat generic functions for many kinds of word games.
+module WordUtils where
 
 import GHC.Exts (sortWith)
 import Data.List (sort, group)

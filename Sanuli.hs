@@ -1,4 +1,5 @@
--- |Functions specific for the Sanuli game
+-- |Functions specific for the Sanuli game. See WordUtils.hs for more
+-- generic ones.
 module Sanuli where
 
 import Data.Char (isAsciiLower)

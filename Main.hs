@@ -9,7 +9,7 @@ import Text.Printf
 
 import Kotus (readKotusWordFile)
 import Sanuli (permutateWords, goodWord, isSanuliWord)
-import Wordlist (toAnagramMap, fromAnagramList, frequency, toFreqList)
+import WordUtils (toAnagramMap, fromAnagramList, frequency, toFreqList)
 import WordPatch (WordPatch(..), readWordPatch)
 
 main = do
