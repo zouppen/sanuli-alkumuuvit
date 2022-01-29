@@ -1,8 +1,7 @@
 -- |Somewhat generic functions for many kinds of word games.
 module WordUtils where
 
-import GHC.Exts (sortWith)
-import Data.List (sort, group)
+import Data.List (sort, sortOn, group)
 import qualified Data.Map.Strict as M
 import qualified Data.Set as S
 import Combinatorics (cartesianProduct, project)
@@ -30,7 +29,7 @@ frequency words = M.fromListWith (+) $ map toFreq words
 
 -- |Letter frequencies in descending order.
 toFreqList :: FreqMap -> [(Char, Int)]
-toFreqList = sortWith (negate . snd) . M.toList
+toFreqList = sortOn (negate . snd) . M.toList
 
 -- |Calculates frequency point for the word. Just adds frequencies of
 -- each letter.
