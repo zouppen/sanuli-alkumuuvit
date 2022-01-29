@@ -53,7 +53,8 @@ main = do
   putList formatFreq dropThese
   printf "Number of anagram groups... %d\n" (length sanuliWordMap)
   printf "Number of anagram groups of promoted letters... %d\n" (length ourWordMap)
-  printf "Calculating unique word set...\n"
+  printf "Calculating unique word set...\n\n"
+  putStr $ label wordLen wordsToFind
   putList (formatSolution toScore) finalSolution
 
 -- |Prints elements in the list line by line, using the given
@@ -63,7 +64,7 @@ putList f = mapM_ (putStrLn . f)
 
 -- |Formats a solution user-friendly
 formatSolution :: (String -> Score) -> [String] -> String
-formatSolution toScore xs = "    " ++ intercalate " " sorted ++ " " ++ intercalate " " (map formatScore scores) ++ " = " ++ formatScore combinedScore
+formatSolution toScore xs = "  " ++ intercalate " " sorted ++ "  " ++ intercalate " + " (map formatScore scores) ++ " = " ++ formatScore combinedScore
   where scores = map toScore sorted
         sorted = reverse $ sortWith toScore xs -- TODO negate projection function
         combinedScore = foldl1 sumScore scores
@@ -74,10 +75,18 @@ formatFreq (char, count) = "    " ++ [char] ++ ": " ++ show count
 
 -- |Formats score like this: greens+yellows
 formatScore :: Score -> String
-formatScore Score{..} = printf "%4d+%4d" green yellow
+formatScore Score{..} = printf "%4d,%4d" green yellow
 
 -- |Produces a function returning scores for an individual word. The
 -- structure is lazy because not all values are required ever (only a
 -- fraction of the keys end up being in the result set.
 toScoreLookup :: S.Set String -> String -> Score
 toScoreLookup words = (ML.!) $ ML.fromSet (totalScore words) words
+
+-- |Pretty ugly label generator.
+label wordLen wordsToFind = unlines [label, dashed]
+  where label = "  " ++ intercalate " " names ++ "  " ++ intercalate "   " scores ++ "   gSum ySum"
+        dashed = map (\x -> if x == ' ' then ' ' else '-') label
+        pad n x = take n $ x ++ repeat ' '
+        names = [ pad wordLen $ "word" ++ show x | x <- [1..wordsToFind] ]
+        scores = [ "g" ++ (show x) ++ "   y" ++ (show x) ++ "  " | x <- [1..wordsToFind ]]

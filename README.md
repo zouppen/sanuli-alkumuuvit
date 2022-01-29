@@ -5,8 +5,8 @@
 > [Wordle](https://www.powerlanguage.co.uk/wordle/) with Finnish
 > language words.
 
-Tällä näpsäkällä tiedonmurskaajalla saa pyöräytettyä Sanuliin sopivat
-aloitussanat eli alkumuuvit. Hyvä alkumuuvi on sellainen, joka käy läpi
+Tällä näpsäkällä tiedonmurskaajalla saa pyöräytettyä [Sanuliin](https://sanuli.fi) sopivat
+aloitussanat eli alkumuuvit. Hyvä alkumuuvi on sellainen, joka käy läp/i
 yleisimmät kirjaimet eikä sisällä samaa kirjainta useampaan
 kertaan. Ideaalisti kahdella sanalla saa testattua 10 eri kirjainta ja
 kolmella 15, kun viiden sanan peli on käytössä.
@@ -52,6 +52,21 @@ Algoritmi löytyy tiedostosta [Main.hs](Main.hs).
 * [Kolme sanaa](https://zouppen.iki.fi/projektit/sanuli/sanuli6-3.txt)
 * Neljä sanaa: ei löydy yhtään
 
+## Hyvyysarvo
+
+Hyvyysarvo lasketaan jokaiselle sanalle ja lisäksi tulostetaan näiden
+summa. Se koostuu kahdesta luvusta; vihreästä (G) ja keltaisesta
+(Y). Vihreä tarkoittaa sitä, kuinka monta vihreää kirjainta (täysi
+osuma) tulee, kun sana testataan kaikkia Sanulin samanmittaisia sanoja
+vastaan. Keltainen tarkoittaa vastaavasti sitä, kuinka monta
+sivuosumaa on.
+
+Tähän on vaikea tehdä aukotonta algoritmia, että mikä on hyvä sana,
+joten jätetään se käyttäjien päätettäväksi. Taulukon saa helposti
+vietyä esim. taulukkolaskentaan analysoitavaksi kun sen tuo
+CSV-moodissa ja valitsee että kiinteä sarakkeen
+leveys. Tulevaisuudessa ehkä myös CSV-vienti voisi olla kova sana.
+
 ## Asentaminen ja käyttö
 
 Jos jaksaisi niin voisi kirjoittaa Cabal-paketin tälle helpottamaan asennusta. Tässä pikaiset ohjeet Debianille ja Ubuntulle. Kloonaa tämä repo ja aja hakemistossa:
@@ -67,8 +82,10 @@ Yllä *5* tarkoittaa sanojen pituutta ja *2* sanojen määrää.
 
 ## Parannettavaa
 
-Listatuille avausmuuveille voisi laskea vielä jonkinlaisen
-hyvyysarvon, jolloin voisi löytää sen parhaan.
+Laskea erot sanalistaan nähden käyttäen apuna
+([@Cadiac/sanuli](https://github.com/Cadiac/sanuli)) mainittua seikkaa,
+että sanat ovat tietysti sovelluksen kyydissä, vaikka eivät
+lähdekoodissa.
 
 Joukossa on vieläkin sanoja joita Sanulissa ei ole. Jos niitä löytyy,
 saa laittaa patchia tulemaan tiedostoon
