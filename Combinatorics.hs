@@ -1,4 +1,4 @@
--- |Some generic math / permutation functions
+-- |Some generic permutation and set functions
 module Combinatorics where
 
 import qualified Data.Map.Strict as M
