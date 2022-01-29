@@ -13,7 +13,7 @@ import Combinatorics (kpn)
 
 data Score = Score { green  :: Int
                    , yellow :: Int
-                   } deriving (Show, Eq, Ord)
+                   } deriving (Show)
 
 -- |Is Sanuli word (containing only a-z and åäö. Drops also words with
 -- capital letters since those are abbreviations or names.
@@ -73,4 +73,10 @@ totalScore words word = foldl f (Score 0 0) words
 
 -- |Sums two scores
 sumScore :: Score -> Score -> Score
-sumScore a b = Score (green a + green b) (yellow a + yellow b)
+sumScore a b = Score { green = green a + green b
+                     , yellow = yellow a + yellow b
+                     }
+
+-- |Priorize using total number, but green as a tiebreaker
+totalScoreProjection :: Score -> (Int, Int)
+totalScoreProjection Score{..} = (green + yellow, green)

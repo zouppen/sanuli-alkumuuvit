@@ -54,18 +54,17 @@ Algoritmi löytyy tiedostosta [Main.hs](Main.hs).
 
 ## Hyvyysarvo
 
-Hyvyysarvo lasketaan jokaiselle sanalle ja lisäksi tulostetaan näiden
-summa. Se koostuu kahdesta luvusta; vihreästä (G) ja keltaisesta
-(Y). Vihreä tarkoittaa sitä, kuinka monta vihreää kirjainta (täysi
-osuma) tulee, kun sana testataan kaikkia Sanulin samanmittaisia sanoja
-vastaan. Keltainen tarkoittaa vastaavasti sitä, kuinka monta
-sivuosumaa on.
+Hyvyysarvo lasketaan jokaiselle sanalle.  Se koostuu kahdesta luvusta;
+vihreästä (g) ja keltaisesta (y). Vihreä tarkoittaa sitä, kuinka monta
+vihreää kirjainta (*täysosuma*) tulee, kun sana testataan kaikkia
+Sanulin samanmittaisia sanoja vastaan. Keltainen tarkoittaa
+vastaavasti sitä, kuinka monta oikeaa kirjainta mutta väärässä
+kohdassa (*sivuosuma*) on.
 
 Tähän on vaikea tehdä aukotonta algoritmia, että mikä on hyvä sana,
 joten jätetään se käyttäjien päätettäväksi. Taulukon saa helposti
 vietyä esim. taulukkolaskentaan analysoitavaksi kun sen tuo
-CSV-moodissa ja valitsee että kiinteä sarakkeen
-leveys. Tulevaisuudessa ehkä myös CSV-vienti voisi olla kova sana.
+CSV-moodissa, pilkkuerotettuna.
 
 ## Asentaminen ja käyttö
 

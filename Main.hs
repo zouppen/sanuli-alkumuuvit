@@ -1,17 +1,17 @@
 {-# LANGUAGE RecordWildCards #-}
 module Main where
 
-import Data.List (intercalate)
+import Data.List (intercalate, sortOn)
 import qualified Data.Map.Strict as M
 import qualified Data.Map as ML
 import qualified Data.Set as S
-import GHC.Exts (sortWith)
 import System.Environment (getArgs)
 import System.IO
 import Text.Printf
 
 import Kotus (readKotusWordFile)
-import Sanuli (permutateWords, goodWord, isSanuliWord, totalScore, sumScore, Score(..))
+import Sanuli ( permutateWords, goodWord, isSanuliWord, totalScore
+              , totalScoreProjection, sumScore, Score(..))
 import WordUtils (toAnagramMap, fromAnagramList, frequency, toFreqList)
 import WordPatch (WordPatch(..), readWordPatch)
 
@@ -53,8 +53,8 @@ main = do
   putList formatFreq dropThese
   printf "Number of anagram groups... %d\n" (length sanuliWordMap)
   printf "Number of anagram groups of promoted letters... %d\n" (length ourWordMap)
-  printf "Calculating unique word set...\n\n"
-  putStr $ label wordLen wordsToFind
+  printf "Generating CSV...\n\n"
+  putStrLn $ label wordLen wordsToFind
   putList (formatSolution toScore) finalSolution
 
 -- |Prints elements in the list line by line, using the given
@@ -64,18 +64,17 @@ putList f = mapM_ (putStrLn . f)
 
 -- |Formats a solution user-friendly
 formatSolution :: (String -> Score) -> [String] -> String
-formatSolution toScore xs = "  " ++ intercalate " " sorted ++ "  " ++ intercalate " + " (map formatScore scores) ++ " = " ++ formatScore combinedScore
-  where scores = map toScore sorted
-        sorted = reverse $ sortWith toScore xs -- TODO negate projection function
-        combinedScore = foldl1 sumScore scores
-
+formatSolution toScore xs = intercalate "," $ sorted ++ map formatScore scores
+  where sorted = sortOn (totalScoreProjection . toScore) xs
+        scores = map toScore sorted
+        
 -- |Formats character frequency user-friendly
 formatFreq :: (Char, Int) -> String
-formatFreq (char, count) = "    " ++ [char] ++ ": " ++ show count
+formatFreq (char, count) = [char] ++ ": " ++ show count
 
 -- |Formats score like this: greens+yellows
 formatScore :: Score -> String
-formatScore Score{..} = printf "%4d,%4d" green yellow
+formatScore Score{..} = show green ++ "," ++ show yellow
 
 -- |Produces a function returning scores for an individual word. The
 -- structure is lazy because not all values are required ever (only a
@@ -84,9 +83,7 @@ toScoreLookup :: S.Set String -> String -> Score
 toScoreLookup words = (ML.!) $ ML.fromSet (totalScore words) words
 
 -- |Pretty ugly label generator.
-label wordLen wordsToFind = unlines [label, dashed]
-  where label = "  " ++ intercalate " " names ++ "  " ++ intercalate "   " scores ++ "   gSum ySum"
-        dashed = map (\x -> if x == ' ' then ' ' else '-') label
-        pad n x = take n $ x ++ repeat ' '
-        names = [ pad wordLen $ "word" ++ show x | x <- [1..wordsToFind] ]
-        scores = [ "g" ++ (show x) ++ "   y" ++ (show x) ++ "  " | x <- [1..wordsToFind ]]
+label :: Int -> Int -> String
+label wordLen wordsToFind = intercalate "," names ++ "," ++ intercalate "," scores
+  where names = [ "word" ++ show x | x <- [1..wordsToFind] ]
+        scores = [ t:show x | x <- [1..wordsToFind], t <- "gy" ]
