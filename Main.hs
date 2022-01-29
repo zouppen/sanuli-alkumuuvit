@@ -70,7 +70,7 @@ formatSolution toScore xs = intercalate "," $ sorted ++ map formatScore scores
         
 -- |Formats character frequency user-friendly
 formatFreq :: (Char, Int) -> String
-formatFreq (char, count) = [char] ++ ": " ++ show count
+formatFreq (char, count) = "  " ++ [char] ++ ": " ++ show count
 
 -- |Formats score like this: greens+yellows
 formatScore :: Score -> String
