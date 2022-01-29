@@ -73,4 +73,4 @@ totalScore words word = foldl f (Score 0 0) words
 
 -- |Sums two scores
 sumScore :: Score -> Score -> Score
-sumScore (Score a1 a2) (Score b1 b2) = Score (a1+b1) (a2+b2)
+sumScore a b = Score (green a + green b) (yellow a + yellow b)
