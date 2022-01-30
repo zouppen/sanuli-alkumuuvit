@@ -79,23 +79,23 @@ main = do
   let info = unless quiet
 
   -- Allows printing half lines such as "Waiting... OK"
-  hSetBuffering stdout NoBuffering
+  hSetBuffering stderr NoBuffering
   
   -- Report what we are going to do
-  info $ printf "Word length is %d\n" wordLen
-  info $ printf "Word group size is %d\n" wordsToFind
+  info $ ePrintf "Word length is %d\n" wordLen
+  info $ ePrintf "Word group size is %d\n" wordsToFind
 
   -- Step 1: Load word list
-  info $ putStr "Loading Kotus word list... "
+  info $ ePrintf "Loading Kotus word list... "
   words <- readKotusWordFile wordFile
-  info $ printf "%d unique words loaded\n" (length words)
+  info $ ePrintf "%d unique words loaded\n" (length words)
 
   -- Step 2: Patch the word list
   patchedWords <- case sanuliPatch of
     Just file -> do
-      info $ putStr "Loading Sanuli patch... "
+      info $ ePrintf "Loading Sanuli patch... "
       WordPatch{..} <- readWordPatch file
-      info $ printf "%d additions, %d removals\n" (length addWords) (length dropWords)
+      info $ ePrintf "%d additions, %d removals\n" (length addWords) (length dropWords)
       pure $ words `S.difference` dropWords `S.union` addWords
     Nothing -> pure words
 
@@ -122,18 +122,18 @@ main = do
   -- lazy, the actual calculation happens when printing or accessing
   -- the information.
   info $ do
-    when (isJust sanuliPatch) $ printf "Applying Sanuli word patch... %d words left\n" (length patchedWords)
-    printf "Filtering %d-length words... %d words left\n" wordLen (length givenLengthWords)
-    printf "Filtering words with Sanuli characters... %d words left\n" (length sanuliWords)
-    printf "Calculating frequency map of %d-length words...\n" wordLen 
-    putStrLn "Promoted letters:"
-    putList stdout formatFreq keepThese
-    putStrLn "Demoted letters:"
-    putList stdout formatFreq dropThese
-    printf "Number of anagram groups... %d\n" (length sanuliWordMap)
-    printf "Number of anagram groups of promoted letters... %d\n" (length ourWordMap)
-    printf "Generating CSV... "
-    when (isNothing outFile) $ putStr "\n\n"
+    when (isJust sanuliPatch) $ ePrintf "Applying Sanuli word patch... %d words left\n" (length patchedWords)
+    ePrintf "Filtering %d-length words... %d words left\n" wordLen (length givenLengthWords)
+    ePrintf "Filtering words with Sanuli characters... %d words left\n" (length sanuliWords)
+    ePrintf "Calculating frequency map of %d-length words...\n" wordLen 
+    ePrintf "Promoted letters:\n"
+    putList stderr formatFreq keepThese
+    ePrintf "Demoted letters:\n"
+    putList stderr formatFreq dropThese
+    ePrintf "Number of anagram groups... %d\n" (length sanuliWordMap)
+    ePrintf "Number of anagram groups of promoted letters... %d\n" (length ourWordMap)
+    ePrintf "Generating CSV... "
+    when (isNothing outFile) $ ePrintf "\n\n"
 
   -- Print results
   h <- maybe (pure stdout) (flip openFile WriteMode) outFile
@@ -141,7 +141,7 @@ main = do
   putList h (formatSolution toScore) finalSolution
   when (isJust outFile) $ do
     hClose h
-    info $ putStrLn " OK"
+    info $ ePrintf "OK"
   
 -- |Prints elements in the list line by line, using the given
 -- projection function.
@@ -173,3 +173,7 @@ label :: Int -> Int -> String
 label wordLen wordsToFind = intercalate "," names ++ "," ++ intercalate "," scores
   where names = [ "word" ++ show x | x <- [1..wordsToFind] ]
         scores = [ t:show x | x <- [1..wordsToFind], t <- "gy" ]
+
+-- |Helper for printing to stderr
+ePrintf :: HPrintfType r => String -> r
+ePrintf = hPrintf stderr
