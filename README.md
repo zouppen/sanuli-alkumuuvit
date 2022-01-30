@@ -40,16 +40,19 @@ Algoritmi löytyy tiedostosta [Main.hs](Main.hs).
 
 ## Esimerkkitulosteita
 
+Nämä tiedostot ovat CSV-muodossa, avautuu esim. LibreOfficessa kun
+valitsee formaatiksi CSV (erotinmerkki pilkku).
+
 ### Viisikirjaimiset sanat
 
-* [Kaksi sanaa](https://zouppen.iki.fi/projektit/sanuli/sanuli5-2.txt)
-* [Kolme sanaa](https://zouppen.iki.fi/projektit/sanuli/sanuli5-3.txt)
-* [Neljä sanaa](https://zouppen.iki.fi/projektit/sanuli/sanuli5-4.txt)
+* [Kaksi sanaa](https://zouppen.iki.fi/projektit/sanuli/sanuli5-2.csv)
+* [Kolme sanaa](https://zouppen.iki.fi/projektit/sanuli/sanuli5-3.csv)
+* [Neljä sanaa](https://zouppen.iki.fi/projektit/sanuli/sanuli5-4.csv)
 
 ### Kuusikirjaimiset sanat
 
-* [Kaksi sanaa](https://zouppen.iki.fi/projektit/sanuli/sanuli6-2.txt)
-* [Kolme sanaa](https://zouppen.iki.fi/projektit/sanuli/sanuli6-3.txt)
+* [Kaksi sanaa](https://zouppen.iki.fi/projektit/sanuli/sanuli6-2.csv)
+* [Kolme sanaa](https://zouppen.iki.fi/projektit/sanuli/sanuli6-3.csv)
 * Neljä sanaa: ei löydy yhtään
 
 ## Hyvyysarvo
