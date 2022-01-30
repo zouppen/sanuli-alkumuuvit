@@ -79,7 +79,7 @@ repo ja aja hakemistossa:
 curl -s https://kaino.kotus.fi/sanat/nykysuomi/kotus-sanalista-v1.tar.gz | tar -xzv
 sudo apt install cabal-install libghc-hxt-dev libghc-yaml-dev libghc-optparse-applicative-dev
 cabal install
-~/.cabal/bin/sanuli-alkumuuvit --length 5 --words 2 --kotus kotus-sanalista_v1/kotus-sanalista_v1.xml --patch sanuli-patch.yaml
+~/.cabal/bin/sanuli-alkumuuvit --length 5 --words 2 --kotus kotus-sanalista_v1/kotus-sanalista_v1.xml
 ```
 
 Yllä *5* tarkoittaa sanojen pituutta ja *2* sanojen määrää.
@@ -88,7 +88,7 @@ Yllä *5* tarkoittaa sanojen pituutta ja *2* sanojen määrää.
 
 Joukossa on vieläkin sanoja joita Sanulissa ei ole. Jos niitä löytyy,
 saa laittaa patchia tulemaan tiedostoon
-[sanuli-patch.yaml](sanuli-patch.yaml)
+[sanuli-patch.yaml](sanuli-patch.yaml).
 
 Toinen vaihtoehto olisi laskea erot sanalistaan nähden käyttäen apuna
 ([@Cadiac/sanuli](https://github.com/Cadiac/sanuli)) mainittua

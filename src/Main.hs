@@ -10,6 +10,8 @@ import qualified Data.Set as S
 import Options.Applicative
 import System.IO
 import Text.Printf
+import Data.Version
+import Paths_sanuli_alkumuuvit
 
 import Kotus (readKotusWordFile)
 import Sanuli ( permutateWords, goodWord, isSanuliWord, totalScore
@@ -53,7 +55,7 @@ optParser = Options
                              <> short 'p'
                              <> long "patch"
                              <> metavar "FILE"
-                             <> help "Sanuli patch file"
+                             <> help "Custom Sanuli patch file (default: builtin)"
                            ))
   <*> switch ( mempty
                <> short 'q'
@@ -63,7 +65,7 @@ optParser = Options
 
 opts = info (optParser <**> helper)
        ( fullDesc
-         <> header "avausmuuvit - Generate optimal opening moves for Sanuli"
+         <> header ("avausmuuvit - Generate optimal opening moves for Sanuli v" ++ showVersion version)
        )
 
 main = do
@@ -83,13 +85,11 @@ main = do
   info $ ePrintf "%d unique words loaded\n" (length words)
 
   -- Step 2: Patch the word list
-  patchedWords <- case sanuliPatch of
-    Just file -> do
-      info $ ePrintf "Loading Sanuli patch... "
-      WordPatch{..} <- readWordPatch file
-      info $ ePrintf "%d additions, %d removals\n" (length addWords) (length dropWords)
-      pure $ words `S.difference` dropWords `S.union` addWords
-    Nothing -> pure words
+  patchedWords <- do
+    file <- maybe (getDataFileName "sanuli-patch.yaml") pure sanuliPatch
+    WordPatch{..} <- readWordPatch file
+    info $ ePrintf "%d additions, %d removals\n" (length addWords) (length dropWords)
+    pure $ words `S.difference` dropWords `S.union` addWords
 
   let
     -- Step 3: Take words of given length
@@ -114,7 +114,7 @@ main = do
   -- lazy, the actual calculation happens when printing or accessing
   -- the information.
   info $ do
-    when (isJust sanuliPatch) $ ePrintf "Applying Sanuli word patch... %d words left\n" (length patchedWords)
+    ePrintf "Applying Sanuli word patch... %d words left\n" (length patchedWords)
     ePrintf "Filtering %d-length words... %d words left\n" wordLen (length givenLengthWords)
     ePrintf "Filtering words with Sanuli characters... %d words left\n" (length sanuliWords)
     ePrintf "Calculating frequency map of %d-length words...\n" wordLen 
