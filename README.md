@@ -41,7 +41,7 @@ Algoritmi löytyy tiedostosta [Main.hs](Main.hs).
 ## Esimerkkitulosteita
 
 Nämä tiedostot ovat CSV-muodossa, avautuu esim. LibreOfficessa kun
-valitsee formaatiksi CSV (erotinmerkki pilkku).
+valitsee formaatiksi CSV (erottimena pilkku).
 
 ### Viisikirjaimiset sanat
 
