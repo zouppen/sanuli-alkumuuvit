@@ -3,7 +3,7 @@ module Main where
 
 import Control.Monad (unless, when)
 import Data.List (intercalate, sortOn)
-import Data.Maybe (isNothing)
+import Data.Maybe (isNothing, isJust)
 import qualified Data.Map.Strict as M
 import qualified Data.Map as ML
 import qualified Data.Set as S
@@ -85,13 +85,13 @@ main = do
   info $ printf "Word length is %d\n" wordLen
   info $ printf "Word group size is %d\n" wordsToFind
 
-  info $ printf "Loading Kotus word list... "
+  info $ putStr "Loading Kotus word list... "
   words <- readKotusWordFile wordFile
   info $ printf "%d unique words loaded\n" (length words)
 
   patchedWords <- case sanuliPatch of
     Just file -> do
-      info $ printf "Loading Sanuli patch... "
+      info $ putStr "Loading Sanuli patch... "
       WordPatch{..} <- readWordPatch file
       info $ printf "%d additions, %d removals\n" (length addWords) (length dropWords)
       pure $ words `S.difference` dropWords `S.union` addWords
@@ -110,13 +110,13 @@ main = do
 
   -- Progress information and statistics
   info $ do
-    printf "Applying Sanuli word patch... %d words left\n" (length patchedWords)
+    when (isJust sanuliPatch) $ printf "Applying Sanuli word patch... %d words left\n" (length patchedWords)
     printf "Filtering %d-length words... %d words left\n" wordLen (length givenLengthWords)
     printf "Filtering words with Sanuli characters... %d words left\n" (length sanuliWords)
     printf "Calculating frequency map of %d-length words...\n" wordLen 
-    printf "Promoted letters:\n"
+    putStrLn "Promoted letters:"
     putList stdout formatFreq keepThese
-    printf "Demoted letters:\n"
+    putStrLn "Demoted letters:"
     putList stdout formatFreq dropThese
     printf "Number of anagram groups... %d\n" (length sanuliWordMap)
     printf "Number of anagram groups of promoted letters... %d\n" (length ourWordMap)
@@ -127,7 +127,7 @@ main = do
   h <- maybe (pure stdout) (flip openFile WriteMode) outFile
   hPutStr h $ label wordLen wordsToFind
   putList h (formatSolution toScore) finalSolution
-  unless (isNothing outFile) $ do
+  when (isJust outFile) $ do
     hClose h
     info $ putStrLn " OK"
   
