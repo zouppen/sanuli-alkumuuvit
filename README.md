@@ -71,9 +71,12 @@ CSV-moodissa, pilkkuerotettuna.
 
 ## Asentaminen ja käyttö
 
-Jos jaksaisi niin voisi kirjoittaa Cabal-paketin tälle helpottamaan
-asennusta. Tässä pikaiset ohjeet Debianille ja Ubuntulle. Kloonaa tämä
-repo ja aja hakemistossa:
+Tämä asentuu Cabalilla ja tarvitsee lisäksi Kotuksen sanalistan, joka
+ladataan erikseen. Alla pikaohje Debian-pohjaisille jakeluille.
+
+### Debian ja Ubuntu
+
+Kloonaa tämä repo ja aja työhakemistossa:
 
 ```sh
 curl -s https://kaino.kotus.fi/sanat/nykysuomi/kotus-sanalista-v1.tar.gz | tar -xzv
