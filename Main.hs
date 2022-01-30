@@ -48,7 +48,7 @@ optParser = Options
                   <> short 'k'
                   <> long "kotus"
                   <> metavar "FILE"
-                  <> help "Kotus XML file"
+                  <> help "Kotus XML word list file"
                 )
   <*> optional ( strOption ( mempty
                              <> short 'p'
@@ -70,7 +70,6 @@ optParser = Options
 
 opts = info (optParser <**> helper)
        ( fullDesc
-         <> progDesc "Print a greeting for TARGET"
          <> header "avausmuuvit - Generate optimal opening moves for Sanuli"
        )
 
