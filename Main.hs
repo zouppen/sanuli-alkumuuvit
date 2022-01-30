@@ -81,14 +81,16 @@ main = do
   -- Allows printing half lines such as "Waiting... OK"
   hSetBuffering stdout NoBuffering
   
-  -- Just say what we're going to do
+  -- Report what we are going to do
   info $ printf "Word length is %d\n" wordLen
   info $ printf "Word group size is %d\n" wordsToFind
 
+  -- Step 1: Load word list
   info $ putStr "Loading Kotus word list... "
   words <- readKotusWordFile wordFile
   info $ printf "%d unique words loaded\n" (length words)
 
+  -- Step 2: Patch the word list
   patchedWords <- case sanuliPatch of
     Just file -> do
       info $ putStr "Loading Sanuli patch... "
@@ -97,18 +99,28 @@ main = do
       pure $ words `S.difference` dropWords `S.union` addWords
     Nothing -> pure words
 
-  let givenLengthWords = S.filter (\x -> length x == wordLen) patchedWords
-      sanuliWords = S.filter isSanuliWord givenLengthWords
-      toScore = toScoreLookup sanuliWords
-      freqList = toFreqList $ frequency $ concat $ S.toList sanuliWords
-      (keepThese, dropThese) = splitAt (wordsToFind*wordLen) freqList
-      ourLetters = S.fromList $ map fst keepThese
-      sanuliWordMap = toAnagramMap sanuliWords
-      ourWordMap = M.filterWithKey (\k _ -> goodWord wordLen ourLetters k) sanuliWordMap
-      solution = permutateWords wordsToFind $ M.toList ourWordMap
-      finalSolution = concatMap fromAnagramList solution
+  let
+    -- Step 3: Take words of given length
+    givenLengthWords = S.filter (\x -> length x == wordLen) patchedWords
+    -- Step 4: Drop words which have characters not used in Sanuli
+    sanuliWords = S.filter isSanuliWord givenLengthWords
+    -- Step 5: Calculate frequency map of letters in those words
+    freqList = toFreqList $ frequency $ concat $ S.toList sanuliWords
+    -- Step 6: Getting the most popular letters from the frequency map
+    (keepThese, dropThese) = splitAt (wordsToFind*wordLen) freqList
+    ourLetters = S.fromList $ map fst keepThese
+    -- Step 7-8: Use the anagram optimization and then pick words
+    -- containing only the most popular letters.
+    sanuliWordMap = toAnagramMap sanuliWords
+    ourWordMap = M.filterWithKey (\k _ -> goodWord wordLen ourLetters k) sanuliWordMap
+    -- Step 9: The actual crunching
+    solution = permutateWords wordsToFind $ M.toList ourWordMap
+    finalSolution = concatMap fromAnagramList solution
+    toScore = toScoreLookup sanuliWords
 
-  -- Progress information and statistics
+  -- Progress information and statistics. Because the steps above are
+  -- lazy, the actual calculation happens when printing or accessing
+  -- the information.
   info $ do
     when (isJust sanuliPatch) $ printf "Applying Sanuli word patch... %d words left\n" (length patchedWords)
     printf "Filtering %d-length words... %d words left\n" wordLen (length givenLengthWords)
@@ -123,7 +135,7 @@ main = do
     printf "Generating CSV... "
     when (isNothing outFile) $ putStr "\n\n"
 
-  -- Actual results
+  -- Print results
   h <- maybe (pure stdout) (flip openFile WriteMode) outFile
   hPutStr h $ label wordLen wordsToFind
   putList h (formatSolution toScore) finalSolution

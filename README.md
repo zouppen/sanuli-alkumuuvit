@@ -6,7 +6,7 @@
 > language words.
 
 Tällä näpsäkällä tiedonmurskaajalla saa pyöräytettyä [Sanuliin](https://sanuli.fi) sopivat
-aloitussanat eli alkumuuvit. Hyvä alkumuuvi on sellainen, joka käy läp/i
+aloitussanat eli alkumuuvit. Hyvä alkumuuvi on sellainen, joka käy läpi
 yleisimmät kirjaimet eikä sisällä samaa kirjainta useampaan
 kertaan. Ideaalisti kahdella sanalla saa testattua 10 eri kirjainta ja
 kolmella 15, kun viiden sanan peli on käytössä.
@@ -68,27 +68,29 @@ CSV-moodissa, pilkkuerotettuna.
 
 ## Asentaminen ja käyttö
 
-Jos jaksaisi niin voisi kirjoittaa Cabal-paketin tälle helpottamaan asennusta. Tässä pikaiset ohjeet Debianille ja Ubuntulle. Kloonaa tämä repo ja aja hakemistossa:
+Jos jaksaisi niin voisi kirjoittaa Cabal-paketin tälle helpottamaan
+asennusta. Tässä pikaiset ohjeet Debianille ja Ubuntulle. Kloonaa tämä
+repo ja aja hakemistossa:
 
 ```sh
 curl -s https://kaino.kotus.fi/sanat/nykysuomi/kotus-sanalista-v1.tar.gz | tar -xzv
 sudo apt install ghc libghc-hxt-dev libghc-yaml-dev
 ghc --make -O2 Main.hs -o alkumuuvit
-./alkumuuvit 5 2 kotus-sanalista_v1/kotus-sanalista_v1.xml sanuli-patch.yaml
+./alkumuuvit --length 5 --words 2 --kotus kotus-sanalista_v1/kotus-sanalista_v1.xml --patch sanuli-patch.yaml
 ```
 
 Yllä *5* tarkoittaa sanojen pituutta ja *2* sanojen määrää.
 
 ## Parannettavaa
 
-Laskea erot sanalistaan nähden käyttäen apuna
-([@Cadiac/sanuli](https://github.com/Cadiac/sanuli)) mainittua seikkaa,
-että sanat ovat tietysti sovelluksen kyydissä, vaikka eivät
-lähdekoodissa.
-
 Joukossa on vieläkin sanoja joita Sanulissa ei ole. Jos niitä löytyy,
 saa laittaa patchia tulemaan tiedostoon
 [sanuli-patch.yaml](sanuli-patch.yaml)
+
+Toinen vaihtoehto olisi laskea erot sanalistaan nähden käyttäen apuna
+([@Cadiac/sanuli](https://github.com/Cadiac/sanuli)) mainittua
+seikkaa, että sanat ovat tietysti sovelluksen kyydissä, vaikka eivät
+lähdekoodissa.
 
 ## Taustaa
 
