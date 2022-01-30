@@ -1,0 +1,24 @@
+-- For documentation, see http://haskell.org/cabal/users-guide/
+cabal-version:       >=1.10
+name:                sanuli-alkumuuvit
+version:             0.1.0.0
+synopsis:            Generate optimal opening moves for Sanuli
+description:         Uses Kotus word list and generates optimal opening
+                     words for Sanuli word game, https://sanuli.fi/
+bug-reports:         https://github.com/zouppen/sanuli-alkumuuvit/issues 
+license:             GPL-3
+license-file:        LICENSE
+author:              Joel Lehtonen
+maintainer:          joel.lehtonen@iki.fi
+copyright:           © 2022 Joel Lehtonen
+category:            Game
+build-type:          Simple
+extra-source-files:  README.md
+
+executable sanuli-alkumuuvit
+  main-is:             Main.hs
+  other-extensions:    RecordWildCards, OverloadedStrings
+  build-depends:       base >=4.13 && <5, containers >=0.6, optparse-applicative >=0.15, yaml >=0.11, hxt >=9.3
+  hs-source-dirs:      src
+  other-modules:       Kotus, Sanuli, WordUtils, WordPatch, Combinatorics
+  default-language:    Haskell2010

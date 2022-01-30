@@ -77,9 +77,9 @@ repo ja aja hakemistossa:
 
 ```sh
 curl -s https://kaino.kotus.fi/sanat/nykysuomi/kotus-sanalista-v1.tar.gz | tar -xzv
-sudo apt install ghc libghc-hxt-dev libghc-yaml-dev libghc-optparse-applicative-dev
-ghc --make -O2 Main.hs -o alkumuuvit
-./alkumuuvit --length 5 --words 2 --kotus kotus-sanalista_v1/kotus-sanalista_v1.xml --patch sanuli-patch.yaml
+sudo apt install cabal-install libghc-hxt-dev libghc-yaml-dev libghc-optparse-applicative-dev
+cabal install
+~/.cabal/bin/sanuli-alkumuuvit --length 5 --words 2 --kotus kotus-sanalista_v1/kotus-sanalista_v1.xml --patch sanuli-patch.yaml
 ```
 
 Yllä *5* tarkoittaa sanojen pituutta ja *2* sanojen määrää.
