@@ -1,11 +1,13 @@
 {-# LANGUAGE RecordWildCards #-}
 module Main where
 
+import Control.Monad (unless, when)
 import Data.List (intercalate, sortOn)
+import Data.Maybe (isNothing)
 import qualified Data.Map.Strict as M
 import qualified Data.Map as ML
 import qualified Data.Set as S
-import System.Environment (getArgs)
+import Options.Applicative
 import System.IO
 import Text.Printf
 
@@ -15,24 +17,87 @@ import Sanuli ( permutateWords, goodWord, isSanuliWord, totalScore
 import WordUtils (toAnagramMap, fromAnagramList, frequency, toFreqList)
 import WordPatch (WordPatch(..), readWordPatch)
 
+data Options = Options
+  { wordLen     :: Int
+  , wordsToFind :: Int
+  , wordFile    :: FilePath
+  , sanuliPatch :: Maybe FilePath 
+  , outFile     :: Maybe FilePath
+  , quiet       :: Bool
+  } deriving (Show)
+
+optParser :: Parser Options
+optParser = Options
+  <$> option auto ( mempty
+                    <> short 'l'
+                    <> long "length"
+                    <> metavar "INT"
+                    <> showDefault
+                    <> value 5
+                    <> help "Word length"
+                  )
+  <*> option auto ( mempty
+                    <> short 'w'
+                    <> long "words"
+                    <> metavar "INT"
+                    <> showDefault
+                    <> value 3
+                    <> help "Word group size"
+                  )
+  <*> strOption ( mempty
+                  <> short 'k'
+                  <> long "kotus"
+                  <> metavar "FILE"
+                  <> help "Kotus XML file"
+                )
+  <*> optional ( strOption ( mempty
+                             <> short 'p'
+                             <> long "patch"
+                             <> metavar "FILE"
+                             <> help "Sanuli patch file"
+                           ))
+  <*> optional ( strOption ( mempty
+                             <> short 'o'
+                             <> long "out"
+                             <> metavar "FILE"
+                             <> help "Produce CSV file (instead of stdout)"
+                           ))
+  <*> switch ( mempty
+               <> short 'q'
+               <> long "quiet"
+               <> help "Don't print progress"
+             )
+
+opts = info (optParser <**> helper)
+       ( fullDesc
+         <> progDesc "Print a greeting for TARGET"
+         <> header "avausmuuvit - Generate optimal opening moves for Sanuli"
+       )
+
 main = do
+  Options{..} <- execParser opts
+  let info = unless quiet
+
+  -- Allows printing half lines such as "Waiting... OK"
   hSetBuffering stdout NoBuffering
-  [wordLenStr, wordsToFindStr, wordFile, sanuliPatch] <- getArgs
-  let wordLen = read wordLenStr
-  let wordsToFind = read wordsToFindStr
-  printf "Word length is %d\n" wordLen
-  printf "Word group size is %d\n" wordsToFind
+  
+  -- Just say what we're going to do
+  info $ printf "Word length is %d\n" wordLen
+  info $ printf "Word group size is %d\n" wordsToFind
 
-  printf "Loading Kotus word list... "
+  info $ printf "Loading Kotus word list... "
   words <- readKotusWordFile wordFile
-  printf "%d unique words loaded\n" (length words)
+  info $ printf "%d unique words loaded\n" (length words)
 
-  printf "Loading Sanuli patch... "
-  WordPatch{..} <- readWordPatch sanuliPatch
-  printf "%d additions, %d removals\n" (length addWords) (length dropWords)
+  patchedWords <- case sanuliPatch of
+    Just file -> do
+      info $ printf "Loading Sanuli patch... "
+      WordPatch{..} <- readWordPatch file
+      info $ printf "%d additions, %d removals\n" (length addWords) (length dropWords)
+      pure $ words `S.difference` dropWords `S.union` addWords
+    Nothing -> pure words
 
-  let patchedWords = words `S.difference` dropWords `S.union` addWords
-      givenLengthWords = S.filter (\x -> length x == wordLen) patchedWords
+  let givenLengthWords = S.filter (\x -> length x == wordLen) patchedWords
       sanuliWords = S.filter isSanuliWord givenLengthWords
       toScore = toScoreLookup sanuliWords
       freqList = toFreqList $ frequency $ concat $ S.toList sanuliWords
@@ -43,24 +108,33 @@ main = do
       solution = permutateWords wordsToFind $ M.toList ourWordMap
       finalSolution = concatMap fromAnagramList solution
 
-  printf "Applying Sanuli word patch... %d words left\n" (length patchedWords)
-  printf "Filtering %d-length words... %d words left\n" wordLen (length givenLengthWords)
-  printf "Filtering words with Sanuli characters... %d words left\n" (length sanuliWords)
-  printf "Calculating frequency map of %d-length words...\n" wordLen 
-  printf "Promoted letters:\n"
-  putList formatFreq keepThese
-  printf "Demoted letters:\n"
-  putList formatFreq dropThese
-  printf "Number of anagram groups... %d\n" (length sanuliWordMap)
-  printf "Number of anagram groups of promoted letters... %d\n" (length ourWordMap)
-  printf "Generating CSV...\n\n"
-  putStrLn $ label wordLen wordsToFind
-  putList (formatSolution toScore) finalSolution
+  -- Progress information and statistics
+  info $ do
+    printf "Applying Sanuli word patch... %d words left\n" (length patchedWords)
+    printf "Filtering %d-length words... %d words left\n" wordLen (length givenLengthWords)
+    printf "Filtering words with Sanuli characters... %d words left\n" (length sanuliWords)
+    printf "Calculating frequency map of %d-length words...\n" wordLen 
+    printf "Promoted letters:\n"
+    putList stdout formatFreq keepThese
+    printf "Demoted letters:\n"
+    putList stdout formatFreq dropThese
+    printf "Number of anagram groups... %d\n" (length sanuliWordMap)
+    printf "Number of anagram groups of promoted letters... %d\n" (length ourWordMap)
+    printf "Generating CSV... "
+    when (isNothing outFile) $ putStr "\n\n"
 
+  -- Actual results
+  h <- maybe (pure stdout) (flip openFile WriteMode) outFile
+  hPutStr h $ label wordLen wordsToFind
+  putList h (formatSolution toScore) finalSolution
+  unless (isNothing outFile) $ do
+    hClose h
+    info $ putStrLn " OK"
+  
 -- |Prints elements in the list line by line, using the given
 -- projection function.
-putList :: Foldable t => (a -> String) -> t a -> IO ()
-putList f = mapM_ (putStrLn . f)
+putList :: Foldable t => Handle -> (a -> String) -> t a -> IO ()
+putList h f = mapM_ (hPutStrLn h . f)
 
 -- |Formats a solution user-friendly
 formatSolution :: (String -> Score) -> [String] -> String
