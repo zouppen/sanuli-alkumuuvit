@@ -22,7 +22,6 @@ data Options = Options
   , wordsToFind :: Int
   , wordFile    :: FilePath
   , sanuliPatch :: Maybe FilePath 
-  , outFile     :: Maybe FilePath
   , quiet       :: Bool
   } deriving (Show)
 
@@ -55,12 +54,6 @@ optParser = Options
                              <> long "patch"
                              <> metavar "FILE"
                              <> help "Sanuli patch file"
-                           ))
-  <*> optional ( strOption ( mempty
-                             <> short 'o'
-                             <> long "out"
-                             <> metavar "FILE"
-                             <> help "Produce CSV file (instead of stdout)"
                            ))
   <*> switch ( mempty
                <> short 'q'
@@ -131,16 +124,11 @@ main = do
     putList stderr formatFreq dropThese
     ePrintf "Number of anagram groups... %d\n" (length sanuliWordMap)
     ePrintf "Number of anagram groups of promoted letters... %d\n" (length ourWordMap)
-    ePrintf "Generating CSV... "
-    when (isNothing outFile) $ ePrintf "\n\n"
+    ePrintf "Generating CSV... \n\n"
 
   -- Print results
-  h <- maybe (pure stdout) (flip openFile WriteMode) outFile
-  hPutStr h $ label wordLen wordsToFind
-  putList h (formatSolution toScore) finalSolution
-  when (isJust outFile) $ do
-    hClose h
-    info $ ePrintf "OK"
+  putStrLn $ label wordLen wordsToFind
+  putList stdout (formatSolution toScore) finalSolution
   
 -- |Prints elements in the list line by line, using the given
 -- projection function.
