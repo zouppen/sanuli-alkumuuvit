@@ -5,9 +5,34 @@ import Control.Applicative
 import Control.Monad
 import qualified Data.Attoparsec.ByteString as A
 import qualified Data.ByteString as B
+import qualified Data.Set as S
 import Data.Word
 import System.IO
 import Data.Bits
+
+-- |Skips characters until parser succeeds
+skipGarbage :: A.Parser a -> A.Parser a
+skipGarbage p = p <|> (A.anyWord8 >> skipGarbage p)
+
+-- |Go through the file and find all possible Sanuli lists
+allSanuliLists :: A.Parser [[String]]
+allSanuliLists = many $ skipGarbage sanuliList
+
+-- |List of Sanuli words
+sanuliList :: A.Parser [String]
+sanuliList = sanuliString `A.sepBy1` (A.word8 0x0A)
+
+-- |Parses non-empty Sanuli string
+sanuliString :: A.Parser String
+sanuliString = A.many1 sanuliChar
+
+-- |Takes only Sanuli letter
+sanuliChar :: A.Parser Char
+sanuliChar = do
+  c <- utf8char
+  guard $ isSanuliLetter c
+  pure c
+  where isSanuliLetter = flip S.member $ S.fromList $ ['A'..'Z'] ++ "ÅÄÖ"
 
 -- Parse UTF-8 character
 utf8char :: A.Parser Char
