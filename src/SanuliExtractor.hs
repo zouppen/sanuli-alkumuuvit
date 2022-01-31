@@ -22,22 +22,24 @@ bestSanuliList = best <$> many (skipGarbage sanuliList)
 
 -- |List of Sanuli words
 sanuliList :: A.Parser [T.Text]
-sanuliList = sanuliString `A.sepBy1` (A.word8 0x0A)
+sanuliList = sanuliString `A.sepBy1` A.word8 0x0A
 
 -- |Parses non-empty Sanuli string
 sanuliString :: A.Parser T.Text
-sanuliString = T.pack <$> (A.many1 sanuliChar >>= aGuard lenCheck)
+sanuliString = A.many1 sanuliChar >>= validate lenCheck >>= pure . T.pack
   where lenCheck x = length x == 5 || length x == 6
 
 -- |Takes only Sanuli letter
 sanuliChar :: A.Parser Char
-sanuliChar = utf8char >>= aGuard isSanuliLetter 
+sanuliChar = utf8char >>= validate isSanuliLetter 
   where isSanuliLetter = flip S.member $ S.fromList $ ['A'..'Z'] ++ "ÅÄÖ"
 
-aGuard :: Alternative m => (a -> Bool) -> a -> m a
-aGuard f a = if f a
-             then pure a
-             else empty
+-- |Returns the given value only if it passes the check
+-- function. Similar to `guard`, but returns the value instead of ().
+validate :: Alternative m => (a -> Bool) -> a -> m a
+validate f a = if f a
+               then pure a
+               else empty
 
 -- |Apply parser to file contents.
 parseFile :: A.Parser a -> FilePath -> IO (A.Result a)
