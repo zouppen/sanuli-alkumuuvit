@@ -81,7 +81,7 @@ main = do
 
   -- Step 1: Load word list
   info $ ePrintf "Loading Kotus word list... "
-  words <- readKotusWordFile wordFile
+  words <- S.fromList <$> readKotusWordFile wordFile
   info $ ePrintf "%d unique words loaded\n" (length words)
 
   -- Step 2: Patch the word list
