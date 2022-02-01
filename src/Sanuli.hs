@@ -5,6 +5,7 @@ module Sanuli where
 
 import Data.Char (isAsciiLower)
 import Data.List (sort)
+import qualified Data.Text as T
 import Control.Applicative (Alternative, liftA, empty)
 import qualified Data.Set as S
 import Control.Monad (foldM)
@@ -17,8 +18,8 @@ data Score = Score { green  :: Int
 
 -- |Is Sanuli word (containing only a-z and åäö. Drops also words with
 -- capital letters since those are abbreviations or names.
-isSanuliWord :: String -> Bool
-isSanuliWord x = all isSanuliChar x
+isSanuliWord :: T.Text -> Bool
+isSanuliWord x = T.all isSanuliChar x
   where isSanuliChar x = isAsciiLower x || x `elem` "åäö"
 
 -- |Return true if the string length has given length and all the
@@ -67,9 +68,9 @@ singleWordScore a ref = Score{..}
 
 -- |Calculates the total score i.e. sum of scores of against the whole
 -- word bank.
-totalScore :: Foldable t => t String -> String -> Score
+totalScore :: Foldable t => t T.Text -> T.Text -> Score
 totalScore words word = foldl f (Score 0 0) words
-  where f acc ref = sumScore acc $ singleWordScore word ref
+  where f acc ref = sumScore acc $ singleWordScore (T.unpack word) (T.unpack ref)
 
 -- |Sums two scores
 sumScore :: Score -> Score -> Score

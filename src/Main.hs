@@ -1,4 +1,4 @@
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE RecordWildCards, OverloadedStrings #-}
 module Main where
 
 import Control.Monad (unless, when)
@@ -7,6 +7,7 @@ import Data.Maybe (isNothing, isJust)
 import qualified Data.Map.Strict as M
 import qualified Data.Map as ML
 import qualified Data.Set as S
+import qualified Data.Text as T
 import Options.Applicative
 import System.IO
 import Text.Printf
@@ -93,11 +94,11 @@ main = do
 
   let
     -- Step 3: Take words of given length
-    givenLengthWords = S.filter (\x -> length x == wordLen) patchedWords
+    givenLengthWords = S.filter (\x -> T.length x == wordLen) patchedWords
     -- Step 4: Drop words which have characters not used in Sanuli
     sanuliWords = S.filter isSanuliWord givenLengthWords
     -- Step 5: Calculate frequency map of letters in those words
-    freqList = toFreqList $ frequency $ concat $ S.toList sanuliWords
+    freqList = toFreqList $ frequency $ concatMap T.unpack $ S.toList sanuliWords
     -- Step 6: Getting the most popular letters from the frequency map
     (keepThese, dropThese) = splitAt (wordsToFind*wordLen) freqList
     ourLetters = S.fromList $ map fst keepThese
@@ -136,8 +137,8 @@ putList :: Foldable t => Handle -> (a -> String) -> t a -> IO ()
 putList h f = mapM_ (hPutStrLn h . f)
 
 -- |Formats a solution user-friendly
-formatSolution :: (String -> Score) -> [String] -> String
-formatSolution toScore xs = intercalate "," $ sorted ++ map formatScore scores
+formatSolution :: (T.Text -> Score) -> [T.Text] -> String
+formatSolution toScore xs = T.unpack $ T.intercalate "," $ sorted ++ concatMap formatScore scores
   where sorted = sortOn (totalScoreProjection . toScore) xs
         scores = map toScore sorted
         
@@ -145,14 +146,14 @@ formatSolution toScore xs = intercalate "," $ sorted ++ map formatScore scores
 formatFreq :: (Char, Int) -> String
 formatFreq (char, count) = "  " ++ [char] ++ ": " ++ show count
 
--- |Formats score like this: greens+yellows
-formatScore :: Score -> String
-formatScore Score{..} = show green ++ "," ++ show yellow
+-- |Formats score to list of two items: [green, yellow]
+formatScore :: Score -> [T.Text]
+formatScore Score{..} = [T.pack $ show green, T.pack $ show yellow]
 
 -- |Produces a function returning scores for an individual word. The
 -- structure is lazy because not all values are required ever (only a
 -- fraction of the keys end up being in the result set.
-toScoreLookup :: S.Set String -> String -> Score
+toScoreLookup :: S.Set T.Text -> T.Text -> Score
 toScoreLookup words = (ML.!) $ ML.fromSet (totalScore words) words
 
 -- |Pretty ugly label generator.

@@ -3,9 +3,10 @@ module WordPatch where
 
 import Data.Yaml
 import Data.Set (Set, empty)
+import Data.Text (Text)
 
-data WordPatch = WordPatch { addWords  :: Set String
-                           , dropWords :: Set String
+data WordPatch = WordPatch { addWords  :: Set Text
+                           , dropWords :: Set Text
                            } deriving (Show)
 
 instance FromJSON WordPatch where
