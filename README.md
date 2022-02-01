@@ -80,23 +80,26 @@ Kloonaa tämä repo ja aja työhakemistossa:
 
 ```sh
 curl -s https://kaino.kotus.fi/sanat/nykysuomi/kotus-sanalista-v1.tar.gz | tar -xzv
-sudo apt install cabal-install libghc-hxt-dev libghc-yaml-dev libghc-optparse-applicative-dev
+sudo apt install cabal-install libghc-hxt-dev libghc-yaml-dev libghc-optparse-applicative-dev libghc-attoparsec-dev
 cabal install
 ~/.cabal/bin/sanuli-alkumuuvit --length 5 --words 2 --kotus kotus-sanalista_v1/kotus-sanalista_v1.xml
 ```
 
 Yllä *5* tarkoittaa sanojen pituutta ja *2* sanojen määrää.
 
-## Parannettavaa
+## Sanalistan erot
 
-Joukossa on vieläkin sanoja joita Sanulissa ei ole. Jos niitä löytyy,
-saa laittaa patchia tulemaan tiedostoon
-[sanuli-patch.yaml](sanuli-patch.yaml).
+Tässä paketissa tulee mukana työkalu `sanuli-diff`, jolla voi laskea
+erot Sanulin WASM-käännöksen ja Kotuksen sanalistan välillä. Sen
+tuottaman datan luvallisuus on hiukan hankalasti
+määriteltävä. Alkuperäinen Sanuli on avointa koodia
+([@Cadiac/sanuli](https://github.com/Cadiac/sanuli)) mutta
+käännöksessä mukana tulevien assettien lisenssi ei välttämättä ole
+sama. Jos tästä nyt tulee jotakin kiistaa, voin vetää esigeneroidun
+patchin pois tältä sivulta.
 
-Toinen vaihtoehto olisi laskea erot sanalistaan nähden käyttäen apuna
-([@Cadiac/sanuli](https://github.com/Cadiac/sanuli)) mainittua
-seikkaa, että sanat ovat tietysti sovelluksen kyydissä, vaikka eivät
-lähdekoodissa.
+Erot Kotuksen sanalistan ja Sanulin listan välillä (30.1.2022)
+löytyvät tiedostosta [sanuli-patch.yaml](sanuli-patch.yaml).
 
 ## Taustaa
 

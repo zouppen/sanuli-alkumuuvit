@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings, RecordWildCards #-}
 module WordPatch where
 
 import Data.Yaml
@@ -14,5 +14,10 @@ instance FromJSON WordPatch where
     <$> v .:? "add" .!= empty
     <*> v .:? "drop" .!= empty
 
+instance ToJSON WordPatch where
+  toJSON WordPatch{..} =
+    object ["add" .= addWords, "drop" .= dropWords]
+
+-- |Read word patch from a file
 readWordPatch :: FilePath -> IO WordPatch
 readWordPatch = decodeFileThrow
