@@ -87,6 +87,7 @@ main = do
 
   -- Step 2: Patch the word list
   patchedWords <- do
+    info $ ePrintf "Loading Sanuli patch file... "
     file <- maybe (getDataFileName "sanuli-patch.yaml") pure sanuliPatch
     WordPatch{..} <- readWordPatch file
     info $ ePrintf "%d additions, %d removals\n" (length addWords) (length dropWords)

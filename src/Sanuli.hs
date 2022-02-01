@@ -80,4 +80,4 @@ sumScore a b = Score { green = green a + green b
 
 -- |Priorize using total number, but green as a tiebreaker
 totalScoreProjection :: Score -> (Int, Int)
-totalScoreProjection Score{..} = (green + yellow, green)
+totalScoreProjection Score{..} = (-green-yellow, -green)
