@@ -24,7 +24,8 @@ data Options = Options
   { wordLen     :: Int
   , wordsToFind :: Int
   , wordFile    :: FilePath
-  , sanuliPatch :: Maybe FilePath 
+  , sanuliPatch :: Maybe FilePath
+  , dropLetters :: String
   , quiet       :: Bool
   } deriving (Show)
 
@@ -58,6 +59,13 @@ optParser = Options
                              <> metavar "FILE"
                              <> help "Custom Sanuli patch file (default: builtin)"
                            ))
+  <*> strOption ( mempty
+                  <> short 'd'
+                  <> long "drop"
+                  <> value ""
+                  <> metavar "LETTERS"
+                  <> help "Drop given letters, for Sanuliketju (default: none)"
+                )
   <*> switch ( mempty
                <> short 'q'
                <> long "quiet"
@@ -98,8 +106,10 @@ main = do
     givenLengthWords = S.filter (\x -> T.length x == wordLen) patchedWords
     -- Step 4: Drop words which have characters not used in Sanuli
     sanuliWords = S.filter isSanuliWord givenLengthWords
-    -- Step 5: Calculate frequency map of letters in those words
-    freqList = toFreqList $ frequency $ concatMap T.unpack $ S.toList sanuliWords
+    -- Step 5: Calculate frequency map of letters in those words. Drop
+    -- letters if asked to do so.
+    dropper = flip M.withoutKeys $ S.fromList dropLetters
+    freqList = toFreqList $ dropper $ frequency $ concatMap T.unpack $ S.toList sanuliWords
     -- Step 6: Getting the most popular letters from the frequency map
     (keepThese, dropThese) = splitAt (wordsToFind*wordLen) freqList
     ourLetters = S.fromList $ map fst keepThese
